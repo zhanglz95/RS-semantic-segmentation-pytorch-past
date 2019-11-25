@@ -4,9 +4,7 @@
 [![pytorch-image]][pytorch-url]
 [![lic-image]][lic-url]
 
-**This repo aims at implementing various semantic segmentation models on Pytorch for RemoteSensing image datasets.**
-
-
+**This repo aims at implementing multiple semantic segmentation models on Pytorch for RemoteSensing image datasets.**
 
 [python-image]: https://img.shields.io/badge/Python-3.x-ff69b4.svg
 [python-url]: https://www.python.org/
