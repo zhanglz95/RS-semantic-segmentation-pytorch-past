@@ -4,13 +4,14 @@ from collections import namedtuple
 from PIL import Image
 
 class BaseDataSet(Dataset):
-    def __init__(self, root, mode='train', aug_kwargs={}, augment=True, **kwargs):
+    def __init__(self, root, mode='train', aug_kwargs={}, augment=True):
         """
         Initilize parameters
         root (Path): base root for original data and labeled data.
         augment (Bool): wheter does augmentation or not.
         aug_kwargs (dict): the augmentations which you want to do. 
-        example {
+        example 
+        {
             "train":{
                 method:parameters
             }
@@ -20,8 +21,6 @@ class BaseDataSet(Dataset):
         }
         """
         self.root = root
-        self.train_root = root
-        self.label_root = root
         self.mode = mode
 
         self.augment = augment
@@ -40,7 +39,7 @@ class BaseDataSet(Dataset):
         '''
         if self.aug_kwargs:
             for method in self.aug_kwargs[self.mode].keys():
-                pair = method(pair=pair, **(self.aug_kwargs[method]))
+                pair = method(pair=pair, **(self.aug_kwargs[self.mode][method]))
         return pair
 
     def _correspond(self):
@@ -69,6 +68,8 @@ class BaseDataSet(Dataset):
     def __getitem__(self, index):
         '''
         Return a named tuple. pair = (origin = xx, label = xx)
+        First: Fetch a pair of original data and labeled data.
+        Second: Augment the pair of data in 'train' or 'val' way.
         '''
         if index >= self.__len__() or index < 0:
             raise IndexError
