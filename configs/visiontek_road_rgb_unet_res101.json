@@ -1,0 +1,28 @@
+{
+	"name": "visiontek_road_rgb_unet_res101",
+
+	"use_gpu": true,
+
+	"train_loader": {
+		"data_dir": "",
+		"batchsize": 8,
+		"shuffle": true,
+		"augment": true,
+		"scale": true,
+		"flip": true,
+		"rotate": true,
+		"num_workers": 8,
+	},
+
+	"optimizer": {
+		"type": "SGD",
+		"lr": 1e-3,
+	},
+
+	"loss": "CrossEntropyLoss2d",
+
+	"trainer": {
+        "epochs": 80,
+        "save_period": 10,
+	}
+}
