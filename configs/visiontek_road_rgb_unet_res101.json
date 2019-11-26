@@ -29,7 +29,7 @@
 		"lr": 1e-3
 	},
 
-	"loss": "CrossEntropyLoss2d",
+	"loss": "dice_bce_loss",
 
 	"trainer": {
         "epochs": 80,

@@ -3,25 +3,32 @@ import json
 
 import dataloader as D
 import models as M
-from utils import loss
+from utils import loss as L
 from utils import Logger
 
 from trainer import Trainer
 
 def main(config, resume):
-	train_logger = Logger(config["name"], "info")
+	logger = Logger(config["name"], "info")
 
 	# make Data Loader
 	train_loader = getattr(D, config["loader_name"])(config["train_loader"])
-	val_loader = getattr(D, config["loader_name"])(config["valid_loader"])
+	valid_loader = getattr(D, config["loader_name"])(config["valid_loader"])
 
 	# make model network
 	model = getattr(M, config["model"])
 
 	# make loss
-	loss = None
+	loss = getattr(L, config["loss"])
 
-	trainer = Trainer()
+	trainer = Trainer(
+		model,
+		train_loader,
+		valid_loader,
+		loss,
+		config,
+		logger,
+		None)
 
 	trainer.train()
 
