@@ -3,6 +3,10 @@
 
 	"use_gpu": true,
 
+	"model": "UNet",
+
+	"loader_name": "Visiontek_rgb_loader",
+
 	"train_loader": {
 		"data_dir": "",
 		"batchsize": 8,
@@ -11,18 +15,24 @@
 		"scale": true,
 		"flip": true,
 		"rotate": true,
-		"num_workers": 8,
+		"num_workers": 8
+	},
+	
+	"valid_loader": {
+		"data_dir": "",
+		"batchsize": 8, 
+		"num_workers": 8
 	},
 
 	"optimizer": {
 		"type": "SGD",
-		"lr": 1e-3,
+		"lr": 1e-3
 	},
 
 	"loss": "CrossEntropyLoss2d",
 
 	"trainer": {
         "epochs": 80,
-        "save_period": 10,
+        "save_period": 10
 	}
 }
