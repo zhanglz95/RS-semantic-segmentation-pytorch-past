@@ -40,7 +40,7 @@ The code structure is based on [pytorch-template](https://github.com/victoresque
   ├── test.py - test using a trained model
   ├── trainer.py - script for training  
   ├── configs/
-  │	  ├── xxx.json
+  │   ├── xxx.json
   │   ├── xxx.json
   │   └── xxx.json    
   │
