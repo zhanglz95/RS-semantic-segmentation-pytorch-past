@@ -59,7 +59,9 @@ The code structure is based on [pytorch-template](https://github.com/victoresque
 
 ## Acknowledgement
 [pytorch-deeplab-xception](https://github.com/jfzhang95/pytorch-deeplab-xception)
+
 [pytorch-segmentation](https://github.com/yassouali/pytorch_segmentation)
+
 [awesome-semantic-segmentation-pytorch](https://github.com/Tramac/awesome-semantic-segmentation-pytorch)
 
 
