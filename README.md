@@ -15,7 +15,14 @@ This repo aims at implementing multiple semantic segmentation models on Pytorch(
 **Coming Soon.**
 
 ## Usage
+### Train
+```
 **Coming Soon.**
+```
+### Evaluation
+```
+**Coming Soon.**
+```
 
 ## Todo
 - [ ] Deeplab v3+
