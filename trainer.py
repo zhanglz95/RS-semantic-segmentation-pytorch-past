@@ -1,6 +1,7 @@
 import torch
 from torchvision import transforms
 from tqdm import tqdm
+from base import basetrainer
 
 class Trainer:
 	def __init__(self, model, train_loader, valid_loader, loss, config, logger, tb):

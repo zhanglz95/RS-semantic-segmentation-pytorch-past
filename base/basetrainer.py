@@ -25,6 +25,7 @@ class BaseTrainer:
         self.do_validation = self.config['trainer']['val']
         self.start_epoch = 1
         self.imporved = False
+        self.not_improved_count = 0
 
 
         # SETTING DEVICES
@@ -91,14 +92,53 @@ class BaseTrainer:
             json.dump(self.config, handle, indent=4, sort_keys=True)
 
         writer_dir = Path(cfg_trainer['log_dir']).joinpath(self.config['name'], start_time)
-        self.weiter = tensorboard.SummaryWriter(writer_dir)
-
-        handler = logging.FileHandler(cfg_trainer['log_dir'] + "\log.txt")
-
-        self.logger.addHandler(handler)
+        self.writer = tensorboard.SummaryWriter(writer_dir)
 
         if resume :
             self._resume_checkpoint(resume)
+
+    def train(self):
+        for epoch in range(self.start_epoch, self.epochs + 1):
+            results = self._train_epoch(epoch)
+            if self.do_validation and epoch % self.config['trainer']['val_per_epochs'] == 0:
+                results = self._valid_epoch(epoch)
+
+            #   logging info
+            self.logger.info(f'*** Info for epoch {epoch} ***')
+            for k, v in results.item():
+                self.logger.info(f'*** {str(k):15s} {v}')
+
+            if self.train_logger is not None:
+                log = {'epoch' : epoch, **results}
+                self.train_logger.add_info(log)
+
+            # CHECKING IF THIS IS THE BEST MODEL (ONLY FOR VAL)
+            if self.mnt_mode != 'off' and epoch % self.config['trainer']['val_per_epochs'] == 0:
+                try:
+                    if self.mnt_mode == 'min':
+                        # The code below should just base on the way how computing mnt_metric. 
+                        self.imporved = (log[self.mnt_metric] < self.mnt_best)
+                    else:
+                        self.imporved = (log[self.mnt_best] > self.mnt_best)
+                except KeyError:
+                        self.logger.warning(f'The metrics being tracked ({self.mnt_metric}) has not been calculated. Training stops.')
+                        break
+            
+            if self.imporved:
+                self.mnt_best = log[self.mnt_metric]
+                self.not_improved_count = 0
+            else:
+                self.not_improved_count += 1
+
+            if self.not_improved_count > self.early_stopping:
+                self.logger.info(f'\nPerformance didn\'t improve for {self.early_stoping} epochs')
+                self.logger.warning('Training Stoped')
+                break
+
+            # Save Checkpoint
+            if epoch % self.save_period == 0:
+                self._save_checkpoint(epoch, save_best=self.imporved)
+
     def _train_epoch(self, epoch):
         raise NotImplementedError
 
@@ -115,6 +155,27 @@ class BaseTrainer:
         available_gpus = list(range(sys_gpu))
         return device, available_gpus 
 
+    def _save_checkpoint(self, epoch, save_best=False):
+        state = {
+            'arch': type(self.model).__name__,
+            'epoch': epoch,
+            'logger': self.train_logger,
+            'state_dict': self.model.state_dict(),
+            'optimizer': self.optimizer.state_dict(),
+            'lr_scheduler': self.lr_scheduler.__name__,
+            'monitor_best': self.mnt_best,
+            'config': self.config
+        }
+        filename = Path(self.checkpoint_dir).joinpath(f'checkpoint-epoch{epoch}.pth')
+        self.logger.info(f'\nSaving a checkpoint: {filename} ...') 
+        torch.save(state, filename)
+
+        if save_best:
+            filename = Path(self.checkpoint_dir).joinpath(f'best_model.pth')
+            torch.save(state, filename)
+            self.logger.info("Saving current best: best_model.pth")
+   
+   
     def _resume_checkpoint(self, resume_path):
         self.logger.info(f'Loading checkpoint : {resume_path}')
         checkpoint = torch.load(resume_path)
