@@ -53,7 +53,7 @@
     "optimizer":
     {
         "type": "SGD", 
-        "differential_lr": true,
+//      "differential_lr": true,
         "args":
         {
             "lr": 0.01,
