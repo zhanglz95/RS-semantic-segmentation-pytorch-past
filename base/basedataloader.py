@@ -41,7 +41,7 @@ class BaseDataLoader(DataLoader):
 class DataPrefetcher(object):
     '''
     Aim: Return a customized iterable object for dataloader, safer and more functionality,
-         which is easily turn to a iterator .
+         which is easily turn to a iterator.
     '''
     def __init__(self, loader, device, stop_after=None):
         self.loader = loader

@@ -1,0 +1,94 @@
+{
+    "name": "DLinkNet",
+    "n_gpu": 4, 
+//  "use_synch_bn": True,
+
+    "arch":
+    {
+        "type": "DLinkNet", 
+        "args":
+        {
+            "backbone": "resnet50",
+            "freeze_bn": false,
+            "freeze_backbone": false
+        }
+    },
+
+    "train_loader":
+    {
+        "type": "RGB",
+        "args": 
+        {
+            "root": "",
+            "mode": "train",
+            "arg_kwargs": {},
+            "augment": true,
+            
+            "batch_size": 8,
+            "shuffle": true,
+            "num_workers": 8,
+            "sampler": "",
+            "kwargs": {}
+        }
+    }, 
+
+    "val_loader":
+    {
+        "type": "voc", 
+        "args":
+        {
+            "data_dir": "",
+            "mode": "val",
+            "augment": true,
+            "aug_kwargs": {},
+
+            "batch_size": 8,
+            "shuffle": false, 
+            "num_workers": 8,
+            "sampler": "",
+            "kwargs": {}         
+        }
+    },
+
+    "optimizer":
+    {
+        "type": "SGD", 
+        "differential_lr": true,
+        "args":
+        {
+            "lr": 0.01,
+            "weight_devay": 1e-4,
+            "momentum": 0.9
+        }
+    },
+
+    "loss": "CrossEntropyLoss2d", 
+
+    "ignore_index": 0,
+
+    "lr_scheduler":
+    {
+        "type": "", 
+        "args": {}
+    },
+
+    "trainer":
+    {
+        "epochs": 100,
+        "save_dir": "saved/", 
+        "save_period": 10, 
+
+        "monitor": 
+        {
+            "mode": "MIN", 
+            "metric": "MEAN_IOU"
+        },
+
+        "early_stop": 10,
+        "tensorboard": true,
+        "log_dir": "saved/runs",
+        
+        "val": true,
+        "val_per_epoch": 5 
+    }
+}
