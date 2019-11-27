@@ -93,7 +93,10 @@ class BaseTrainer:
         writer_dir = Path(cfg_trainer['log_dir']).joinpath(self.config['name'], start_time)
         self.weiter = tensorboard.SummaryWriter(writer_dir)
 
-        handler = logging.FileHandler(cfg_trainer['log_dir'] + '\log.txt'))
+        handler = logging.FileHandler(cfg_trainer['log_dir'] + "\log.txt")
+
+        self.logger.addHandler(handler)
+
         if resume :
             self._resume_checkpoint(resume)
     def _train_epoch(self, epoch):
