@@ -11,8 +11,8 @@ Pair = namedtuple('Pair', ['image', 'mask'])
 
 
 class Visiontek_rgb_dataset(BaseDataSet):
-	def __init__(self, root, augment=True):
-		super(Visiontek_rgb_dataset, self).__init__(root, augment)
+	def __init__(self, root, augment_config):
+		super(Visiontek_rgb_dataset, self).__init__(root, augment_config)
 
 
 	def _correspond(self):
@@ -23,26 +23,26 @@ class Visiontek_rgb_dataset(BaseDataSet):
 
 		self.file_Paths = file_path(original_path=Path(self.root)/images_path,
 									labeled_path=Path(self.root)/labeled_path)
-		self.images = [file for file in self.file_Paths.original_path.glob("*.jpg")]
-		self.masks = [file for file in self.file_Paths.labeled_path.glob("*.png")]
 
-		assert len(self.images) == len(self.masks)
+		self.files = [file.name.split('.')[0] for file in self.file_Paths.original_path.glob("*.jpg")]
 
 	def _load_data(self, index):
-		imgPath = self.images[index]
-		maskPath = self.masks[index]
+		imgPath = self.file_Paths.original_path / (self.files[index] + ".jpg")
+		maskPath = self.file_Paths.labeled_path / (self.files[index] + ".png")
 
-		img = Image.open(imgPath).convert('RGB')
+		image = Image.open(imgPath).convert('RGB')
 		mask = Image.open(maskPath).convert('L')
-
-		return Pair(np.asarray(img), np.asarray(mask))
+		return Pair(image, mask)
 		# return img, mask
 
 class Visiontek_rgb_loader(BaseDataLoader):
 	def __init__(self, loader_configs):
 		root = loader_configs["data_dir"]
-		augment = loader_configs["augment"]
-		dataset = Visiontek_rgb_dataset(root, augment)
+		# fetch configs for datasets
+		augment_config = loader_configs["augment"]
+
+		dataset = Visiontek_rgb_dataset(root, augment_config)
+
 		super(Visiontek_rgb_loader, self).__init__(dataset, **loader_configs["args"])
 
 		

@@ -9,18 +9,74 @@
 
 	"train_loader": {
 		"data_dir": "./data/visiontek/road/train",
-		"augment": true,
+
+		"augment": {
+			"applyAugment": true,
+			"augment_method": {
+				"HorizontalFlip": true,
+				"VerticalFlip": true,
+				"Scale": true,
+				"Translation": true,
+				"Rotation": true,
+				"Crop": true
+			},
+			"args": {
+				"HorizontalFlip": {},
+				"VerticalFlip": {},
+				"Scale": {
+					"size": [1024, 1024]
+				},
+				"Translation": {
+					"factor": 0.2
+				},
+				"Rotation": {
+					"angle": 10
+				},
+				"Crop": {
+					"corner": [0, 0],
+					"size": [300, 300]
+				}
+			}
+		},
 
 		"args": {
-			"batch_size": 8,
+			"batch_size": 1,
 			"shuffle": true,
-			"num_workers": 8
+			"num_workers": 0
 		}
 	},
 	
 	"val_loader": {
 		"data_dir": "./data/visiontek/road/val",
-		"augment": false, 
+
+		"augment": {
+			"applyAugment": false,
+			"augment_method": {
+				"HorizontalFlip": true,
+				"VerticalFlip": true,
+				"Scale": true,
+				"Translation": true,
+				"Rotation": true,
+				"Crop": true
+			},
+			"args": {
+				"HorizontalFlip": {},
+				"VerticalFlip": {},
+				"Scale": {
+					"size": [1024, 1024]
+				},
+				"Translation": {
+					"factor": 0.2
+				},
+				"Rotation": {
+					"angle": 10
+				},
+				"Crop": {
+					"corner": [0, 0],
+					"size": [300, 300]
+				}
+			}
+		},
 
 		"args":{
 			"batch_size": 8,

@@ -4,12 +4,13 @@ from collections import namedtuple
 from PIL import Image
 import torch
 from torchvision import transforms as T
+from utils import AUG
 
 import numpy as np
 Pair = namedtuple('Pair', ['image', 'mask'])
 
 class BaseDataSet(Dataset):
-    def __init__(self, root, augment=True):
+    def __init__(self, root, augment_config):
         """
         Initilize parameters
         root (Path): base root for original data and labeled data.
@@ -27,8 +28,9 @@ class BaseDataSet(Dataset):
         """
         self.root = root
 
-        self.augment = augment
-        # self.aug_kwargs = aug_kwargs
+        self.augment = augment_config["applyAugment"]
+        self.augment_method = augment_config["augment_method"]
+        self.aug_kwargs = augment_config["args"]
 
         self.file_Paths = None
         self.files = []
@@ -41,7 +43,7 @@ class BaseDataSet(Dataset):
             to_tensor(pair.image),
             to_tensor(pair.mask)
             )
-    def augmentation(self, pair, augmentations=None):
+    def augmentation(self, pair):
         '''
         self.aug_kwargs = {method(function) : {parameters of method}}
         All augmentation methods only accept keyword parameters.
@@ -53,10 +55,11 @@ class BaseDataSet(Dataset):
         # if self.aug_kwargs:
         #     for method in self.aug_kwargs[self.mode].keys():
         #         pair = method(pair=pair, **(self.aug_kwargs[self.mode][method]))
-        if augmentations:
-            for aug in augmentations:
-                pair = aug(pair)
-
+        if self.augment:
+            for aug in self.augment_method.keys():
+                if self.augment_method[aug]:
+                    method = AUG[aug]
+                    pair = method(pair, **self.aug_kwargs[aug])
         return pair
 
     def _correspond(self):
@@ -80,7 +83,7 @@ class BaseDataSet(Dataset):
         raise NotImplementedError
 
     def __len__(self):
-        return len(self.images)
+        return len(self.files)
 
     def __getitem__(self, index):
         '''

@@ -18,7 +18,8 @@ def main(config, resume):
 	val_loader = getattr(D, config["loader_name"])(config["val_loader"])
 
 	for pair in train_loader:
-		print(pair)
+		break
+	# 	print(pair)
 
 	# make model network
 	model = getattr(M, config["model"])
