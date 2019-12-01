@@ -6,14 +6,19 @@ import models as M
 from utils import loss as L
 from utils import Logger
 
-from trainer import Trainer
+# from trainer import Trainer
 
 def main(config, resume):
 	logger = Logger(config["name"], "info")
 
 	# make Data Loader
+	logger.add_info("Start loading train data.")
 	train_loader = getattr(D, config["loader_name"])(config["train_loader"])
-	valid_loader = getattr(D, config["loader_name"])(config["valid_loader"])
+	logger.add_info("Start loading valid data.")
+	val_loader = getattr(D, config["loader_name"])(config["val_loader"])
+
+	for pair in train_loader:
+		print(pair)
 
 	# make model network
 	model = getattr(M, config["model"])
@@ -21,16 +26,16 @@ def main(config, resume):
 	# make loss
 	loss = getattr(L, config["loss"])
 
-	trainer = Trainer(
-		model,
-		train_loader,
-		valid_loader,
-		loss,
-		config,
-		logger,
-		None)
+	# trainer = Trainer(
+	# 	model,
+	# 	loss,
+	# 	config,
+	# 	train_loader,
+	# 	val_loader,
+	# 	logger
+	# 	)
 
-	trainer.train()
+	# trainer.train()
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser(description='Semantic Segmentation for Training...')

@@ -1,3 +1,4 @@
+data/
 saved/
 *.pth
 __pycache__

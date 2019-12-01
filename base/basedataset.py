@@ -2,9 +2,14 @@ from torch.utils.data import Dataset
 from pathlib import Path
 from collections import namedtuple
 from PIL import Image
+import torch
+from torchvision import transforms as T
+
+import numpy as np
+Pair = namedtuple('Pair', ['image', 'mask'])
 
 class BaseDataSet(Dataset):
-    def __init__(self, root, mode='train', aug_kwargs={}, augment=True):
+    def __init__(self, root, augment=True):
         """
         Initilize parameters
         root (Path): base root for original data and labeled data.
@@ -21,25 +26,37 @@ class BaseDataSet(Dataset):
         }
         """
         self.root = root
-        self.mode = mode
 
         self.augment = augment
-        self.aug_kwargs = aug_kwargs
+        # self.aug_kwargs = aug_kwargs
 
+        self.file_Paths = None
         self.files = []
+
         self._correspond()
-
-        pass
-
-    def augmentation(self, pair, mode):
+        
+    def toTensor(self, pair):
+        to_tensor = T.ToTensor()
+        return Pair(
+            to_tensor(pair.image),
+            to_tensor(pair.mask)
+            )
+    def augmentation(self, pair, augmentations=None):
         '''
         self.aug_kwargs = {method(function) : {parameters of method}}
         All augmentation methods only accept keyword parameters.
         mode is to just whether the augmentations are done on a dataset for val or train. 
         '''
-        if self.aug_kwargs:
-            for method in self.aug_kwargs[self.mode].keys():
-                pair = method(pair=pair, **(self.aug_kwargs[self.mode][method]))
+        # TODO add augmentation for data
+
+
+        # if self.aug_kwargs:
+        #     for method in self.aug_kwargs[self.mode].keys():
+        #         pair = method(pair=pair, **(self.aug_kwargs[self.mode][method]))
+        if augmentations:
+            for aug in augmentations:
+                pair = aug(pair)
+
         return pair
 
     def _correspond(self):
@@ -63,7 +80,7 @@ class BaseDataSet(Dataset):
         raise NotImplementedError
 
     def __len__(self):
-        return len(self.files)
+        return len(self.images)
 
     def __getitem__(self, index):
         '''
@@ -75,12 +92,13 @@ class BaseDataSet(Dataset):
             raise IndexError
         else:
             pair = self._load_data(index)
-            if self.augment:
-                pair = self.augmentation(pair, self.mode)
+            pair = self.augmentation(pair)
+            pair = self.toTensor(pair)
+
         return pair
 
-    def __repr__(self):
-        fmt_str = "Dataset: " + self.__class__.__name__ + '\n'
-        fmt_str += f"Length:{self.__len__()}||Root:{self.root}||Mode:{self.mode} \n"
-        fmt_str += f"Augmentation method:\n{self.aug_kwargs[self.mode]}"
-        #fmt_str += f"Train_root:{self.train_root}, Label_root:{self.label_root} "
+    # def __repr__(self):
+    #     fmt_str = "Dataset: " + self.__class__.__name__ + '\n'
+    #     fmt_str += f"Length:{self.__len__()}||Root:{self.root}||Mode:{self.mode} \n"
+    #     fmt_str += f"Augmentation method:\n{self.aug_kwargs[self.mode]}"
+    #     #fmt_str += f"Train_root:{self.train_root}, Label_root:{self.label_root} "

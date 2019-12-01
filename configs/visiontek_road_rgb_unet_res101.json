@@ -1,27 +1,32 @@
 {
 	"name": "visiontek_road_rgb_unet_res101",
 
-	"use_gpu": true,
+	"n_gpu": 4,
 
 	"model": "UNet",
 
 	"loader_name": "Visiontek_rgb_loader",
 
 	"train_loader": {
-		"data_dir": "",
-		"batchsize": 8,
-		"shuffle": true,
+		"data_dir": "./data/visiontek/road/train",
 		"augment": true,
-		"scale": true,
-		"flip": true,
-		"rotate": true,
-		"num_workers": 8
+
+		"args": {
+			"batch_size": 8,
+			"shuffle": true,
+			"num_workers": 8
+		}
 	},
 	
-	"valid_loader": {
-		"data_dir": "",
-		"batchsize": 8, 
-		"num_workers": 8
+	"val_loader": {
+		"data_dir": "./data/visiontek/road/val",
+		"augment": false, 
+
+		"args":{
+			"batch_size": 8,
+			"shuffle": false,
+			"num_workers": 8
+		}
 	},
 
 	"optimizer": {

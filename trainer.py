@@ -1,18 +1,13 @@
 import torch
 from torchvision import transforms
 from tqdm import tqdm
-from base import basetrainer
 
-class Trainer:
-	def __init__(self, model, train_loader, valid_loader, loss, config, logger, tb):
-		self.model = model
-		self.loss = loss
-		self.config = config
-		self.train_loader = train_loader
-		self.valid_loader = valid_loader
-		self.logger = logger
-		self.tb = tb
+from base import baseTrainer
+
+class Trainer(baseTrainer):
+	def __init__(self, model, loss, config, train_loader, val_loader, train_logger):\
+		super(Trainer, self).__init__(model, loss, config, train_loader, val_loader, train_logger)
 
 		
-	def train(self):
+	def _train_epoch(self, epoch):
 		pass

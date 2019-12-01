@@ -14,7 +14,7 @@ def get_instance(module, config, name, *args):
 
 class BaseTrainer:
 
-    def __init__(self, model, loss, resume, config, train_loader, val_loader=None, train_logger=None):
+    def __init__(self, model, loss, config, train_loader, val_loader=None, train_logger=None):
         self.model = model
         self.loss = loss
         self.config = config
@@ -29,7 +29,7 @@ class BaseTrainer:
 
 
         # SETTING DEVICES
-        self.device, available_gpus = self._get_avaiable_devices()
+        self.device, available_gpus = self._get_available_devices()
         # **************************************************
         # multi gpus parallel computing 
         # if config["use_synch_bn"]:
@@ -94,7 +94,7 @@ class BaseTrainer:
         writer_dir = Path(cfg_trainer['log_dir']).joinpath(self.config['name'], start_time)
         self.writer = tensorboard.SummaryWriter(writer_dir)
 
-        if resume :
+        if resume : # resume defined in configs
             self._resume_checkpoint(resume)
 
     def train(self):
@@ -148,7 +148,7 @@ class BaseTrainer:
     def _eval_metrics(self, output, target):
         raise NotImplementedError
 
-    def _get_avaiable_devices(self):
+    def _get_available_devices(self):
         sys_gpu = torch.cuda.device_count()
         device = torch.device('cuda:0' if sys_gpu > 0 else 'cpu')
         self.logger.info(f'Detected GPUs: {sys_gpu}')
