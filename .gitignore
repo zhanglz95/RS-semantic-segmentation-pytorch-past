@@ -1,3 +1,5 @@
+aug_test/
+data/
 saved/
 *.pth
 __pycache__

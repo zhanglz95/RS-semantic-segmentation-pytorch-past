@@ -1,13 +1,18 @@
-
+'''
+The truth in torch.utils.DataLoader:
+1. The method it used to generate a batch is just simplly concate n tensors.
+2. 1 remind me if you want package data in your way, you must write a collect_fn.
+'''
 import torch
 from torch.utils.data import DataLoader
+from torchvision.transforms import *
 
 class BaseDataLoader(DataLoader):
     '''
     DataLoader desgin for map-style datasets.
     Essentially, dataloader is a iterator for a iterable dataset. 
     '''
-    def __init__(self, dataset, batch_size, shuffle, num_workers, sampler=None, **kwargs):
+    def __init__(self, dataset, batch_size, shuffle, num_workers, sampler=None):
         '''
         BaseDataLoader(dataset, batch_size, shuffle, num_workers, sampler=None, **kwargs)
         kwargs(dict): you can customize parameters which are pass to torch.DataLoader .
@@ -32,16 +37,14 @@ class BaseDataLoader(DataLoader):
             'timeout':0,
             'worker_init_fn':None
         }
-        if kwargs:
-            super(BaseDataLoader, self).__init__(**kwargs)
-        else:
-            super(BaseDataLoader, self).__init__(**self.init_kwargs)
-    
+
+        super(BaseDataLoader, self).__init__(**self.init_kwargs)
 
 class DataPrefetcher(object):
     '''
     Aim: Return a customized iterable object for dataloader, safer and more functionality,
          which is easily turn to a iterator.
+    If you simply iter(dataloader) which may raise StopIterationError
     '''
     def __init__(self, loader, device, stop_after=None):
         self.loader = loader
