@@ -92,8 +92,25 @@
 
 	"loss": "dice_bce_loss",
 
-	"trainer": {
-        "epochs": 80,
-        "save_period": 10
-	}
+	"trainer":
+    {
+		"resume":false,
+		"resume_path":"",
+        "epochs": 100,
+        "save_dir": "saved/", 
+        "save_period": 10, 
+
+        "monitor": 
+        {
+            "mode": "MIN", 
+            "metric": "MEAN_IOU"
+        },
+
+        "early_stop": 10,
+        "tensorboard": true,
+        "log_dir": "saved/runs",
+        
+        "val": true,
+        "val_per_epoch": 5 
+    }
 }

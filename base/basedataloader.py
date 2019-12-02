@@ -1,4 +1,8 @@
-
+'''
+The truth in torch.utils.DataLoader:
+1. The method it used to generate a batch is just simplly concate n tensors.
+2. 1 remind me if you want package data in your way, you must write a collect_fn.
+'''
 import torch
 from torch.utils.data import DataLoader
 from torchvision.transforms import *
@@ -40,6 +44,7 @@ class DataPrefetcher(object):
     '''
     Aim: Return a customized iterable object for dataloader, safer and more functionality,
          which is easily turn to a iterator.
+    If you simply iter(dataloader) which may raise StopIterationError
     '''
     def __init__(self, loader, device, stop_after=None):
         self.loader = loader

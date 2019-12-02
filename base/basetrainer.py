@@ -94,8 +94,8 @@ class BaseTrainer:
         writer_dir = Path(cfg_trainer['log_dir']).joinpath(self.config['name'], start_time)
         self.writer = tensorboard.SummaryWriter(writer_dir)
 
-        if resume : # resume defined in configs
-            self._resume_checkpoint(resume)
+        if cfg_trainer['resume'] : # resume defined in configs
+            self._resume_checkpoint(cfg_trainer['resume_path'])
 
     def train(self):
         for epoch in range(self.start_epoch, self.epochs + 1):
@@ -131,7 +131,7 @@ class BaseTrainer:
                 self.not_improved_count += 1
 
             if self.not_improved_count > self.early_stopping:
-                self.logger.info(f'\nPerformance didn\'t improve for {self.early_stoping} epochs')
+                self.logger.info(f'\nPerformance didn\'t improve for {self.early_stopping} epochs')
                 self.logger.warning('Training Stoped')
                 break
 
