@@ -1,10 +1,11 @@
 import torch
 import time
+import numpy as np
 from torchvision import transforms
 from tqdm import tqdm
 from base import BaseTrainer, DataPrefetcher
 from time import time
-
+from utils import eval_metrics
 class Trainer(BaseTrainer):
 	def __init__(self, model, loss, config, train_loader, val_loader, train_logger):
 		super(Trainer, self).__init__(model, loss, config, train_loader, val_loader, train_logger)
@@ -35,7 +36,7 @@ class Trainer(BaseTrainer):
 	def _reset_metrics(self):
 		# self.batch_time = AverageMeter()
 		# self.data_time = AverageMeter()
-		# self.total_loss = AverageMeter()
+		self.total_loss = 0
 		self.total_inter, self.total_union = 0, 0
 		self.total_correct, self.total_label = 0, 0
 
@@ -43,25 +44,28 @@ class Trainer(BaseTrainer):
 	def _update_seg_metrics(self, correct, labeled, inter, union):
 		'''
 		correct, labeled, intern, union, each one of them is a list which length is num_classes.
-		which means that all total_xx are also lists.
-		Thus the mean of MIOU indicates calculate "mean" on each class based a batch,
-			but not on num_classes based on only one image.
 		Summary:
-			MIOU for class i = total_inter[i-1] / total_union[i-1]
-			union[i] -> the union of (i+1)-th class.
-			total_union[i] -> the total union of (i+1)-th class in this batch 
+			1.IOU for class i = total_inter[i-1] / total_union[i-1]
+			2.union[i] -> the union of (i+1)-th class.
+			3.total_union[i] -> the total union of (i+1)-th class in this batch 
 		'''
 		
 		self.total_correct += correct
 		self.total_label += labeled
 		self.total_inter += inter
-		self.total_union += union 
+		self.total_union += union
+ 
 
 	def _get_seg_metrics(self):
 		pixAcc = 1.0 * self.total_correct / (np.spacing(1) + self.total_label)
 		Iou = 1.0 * self.total_inter / (np.spacing(1) + self.total_union)
 		mIou = Iou.mean()
-		# This miou
+		# This miou still calculate mean on classes.
+		return {
+			"Pixel_Accuracy":np.round(pixAcc, 3),
+			"Mean_Iou":np.round(mIou, 3), 
+			"class_Iou":dict(zip(range(self.num_classes), np.round(Iou, 3)))
+		}
 
 	def _train_epoch(self, epoch):
 		self.logger.info('Training Start!')
@@ -75,43 +79,39 @@ class Trainer(BaseTrainer):
 
 		tbar = tqdm(self.train_loader, nclos=130)
 		for batch_idx, pair in enumerate(tbar):
-			# What the difference between data_time and batch_time
 			epoch_start = time()
 			self.lr_scheduler.step(epoch=epoch-1)
 
 			# loss and optimize
-			self.optimizer.zero_grad() # This may should be in reset step
+			self.optimizer.zero_grad()
 			pre = self.model(pair.image)
 			loss = self.loss(pre, pair.mask)
 			loss.backward()
 			self.optimizer.step()
 
 			epoch_end = time()
-			# ******
-			# self.total_loss.update(loss.item())
-			# ******
-			# self.batch_time.update(time() - tic)
-			# date_time may used to store all 
-			# ******
-
 			# logging and tensorboard
 			if batch_idx % self.log_step == 0:
 				self.wrt_step = (epoch - 1) * len(self.train_loader) + batch_idx
 				self.writer.add_scalar(f'{mode}/loss ', loss.item(), self.wrt_step)
 
 			# evaluation 
-			# *********
 			seg_metrics = eval_metrics(pre, pair.mask, self.num_classes)
 			self._update_seg_metrics(*seg_metrics)
 			pixAcc, mIou, _ = self._get_seg_metrics().value()
 			
 			elapsed_time = epoch_end - epoch_start
 
-			# *********
 			# Print Info
 			tbar.set_description(f'Train{epoch}||Loss:{loss.item():.2f}||\
 					Acc:{pixAcc:.2f} mIou:{mIou:.2f} Time:{elapsed_time:.2f}')
+		# # ******************************************************
+		# seg_metrics = self._get_seg_metrics()
+		# for key, value in list(seg_metrics.items())[:-1]:
+		# 	self.writer.add_scalar(f'{mode}/{key}', value, )
 
-		seg_metrics = self._get_seg_metrics()
-		for k, v in list(seg_metrics.items())[:-1]:
-			self.writer.add_scalar
+		# for i, opt_group in enumerate(self.optimizer.param_groups):
+		# 	self.writer.add_scalar(f'{mode}/Learning_rate_{i}', opt_group["lr"], self.wrt_step)
+		log = {'loss': self.total_loss.average, **seg_metrics}
+		
+		return log
