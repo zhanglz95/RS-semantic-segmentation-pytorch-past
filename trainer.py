@@ -14,16 +14,6 @@ class Trainer(BaseTrainer):
 		self.log_step = int(self.train_loader.batch_size)
 		self.num_classes = self.train_loader.dataset.num_classes
 		
-		# *************************************************************************
-		# # TRANSORMS FOR VISUALIZATION
-        # self.restore_transform = transforms.Compose([
-        #     local_transforms.DeNormalize(self.train_loader.MEAN, self.train_loader.STD),
-        #     transforms.ToPILImage()])
-        # self.viz_transform = transforms.Compose([
-        #     transforms.Resize((400, 400)),
-        #     transforms.ToTensor()])
-		# *************************************************************************
-
 		if self.device == torch.device('cpu'):
 			prefetch = False
 		if prefetch:
@@ -105,13 +95,7 @@ class Trainer(BaseTrainer):
 			# Print Info
 			tbar.set_description(f'Train{epoch}||Loss:{loss.item():.2f}||\
 					Acc:{pixAcc:.2f} mIou:{mIou:.2f} Time:{elapsed_time:.2f}')
-		# # ******************************************************
-		# seg_metrics = self._get_seg_metrics()
-		# for key, value in list(seg_metrics.items())[:-1]:
-		# 	self.writer.add_scalar(f'{mode}/{key}', value, )
-
-		# for i, opt_group in enumerate(self.optimizer.param_groups):
-		# 	self.writer.add_scalar(f'{mode}/Learning_rate_{i}', opt_group["lr"], self.wrt_step)
+		
 		log = {'loss': self.total_loss.average, **seg_metrics}
 		
 		return log

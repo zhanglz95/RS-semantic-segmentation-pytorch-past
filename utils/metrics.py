@@ -1,13 +1,45 @@
 import torch
 import numpy as np
 
+class AverageMeter(object):
+    """Computes and stores the average and current value"""
+    def __init__(self):
+        self.initialized = False
+        self.val = None
+        self.avg = None
+        self.sum = None
+        self.count = None
 
-def inter_over_union(output, target, num_classes):
-    # Assume pixel whose value equals to -1 is ignored
+    def initialize(self, val, weight):
+        self.val = val
+        self.avg = val
+        self.sum = np.multiply(val, weight)
+        self.count = weight
+        self.initialized = True
+
+    def update(self, val, weight=1):
+        if not self.initialized:
+            self.initialize(val, weight)
+        else:
+            self.add(val, weight)
+
+    def add(self, val, weight):
+        self.val = val
+        self.sum = np.add(self.sum, np.multiply(val, weight))
+        self.count = self.count + weight
+        self.avg = self.sum / self.count
+
+    @property
+    def value(self):
+        return self.val
+
+    @property
+    def average(self):
+        return np.round(self.avg, 5)
+
+
+def inter_over_union(output, target, num_classes):  
     output, target = np.asarray(output), np.asarray(target)
-    # Ignore the index equals to -1.
-    # Essential the iou only calculate in the area which we care.
-    # Only a subset of output and target
     output = output * (target > 0)
 
     # True positive
@@ -38,8 +70,9 @@ def eval_metrics(output, target, num_classes):
     return [np.round(correct, 5), np.round(labeled, 5), np.round(inter, 5), np.round(union, 5)]
 
 
-def batch_pix_accuracy():
-    pass
+def batch_pix_accuracy(output, target, num_classes):
+    _, predict = torch.max(output, 1)
+    return
 
 def batch_intersection_union():
-    pass
+    return
