@@ -51,7 +51,7 @@ class BaseTrainer:
         
         self.epochs = config['epochs']
         self.train_loader = train_loader
-
+        self.log_per_iter = config['log_per_iter']
         self.val = self.config['val']
         self.val_loader = val_loader
         self.val_per_epochs = config['val_per_epochs']
@@ -61,9 +61,12 @@ class BaseTrainer:
         self.loss = creat_object(utils.loss, self.config['loss'])
 
         params = filter(lambda p:p.requires_grad, self.model.parameters())
-        self.optimizer = creat_object(utils.optim, self.config['optim'], params = params)
         self.lr_scheduler = creat_object(utils.lr_scheduler, config['lr_sceduler'])
-
+        self.optimizer = creat_object(utils.optim, self.config['optim'], 
+                                        **{'params': params,
+                                            'lr':self.lr_scheduler(0)})
+        self.classes = train_loader.classes
+        
         self.start_epoch = 1
         self.improved = False
         self.best = 0
@@ -128,28 +131,18 @@ class BaseTrainer:
         raise NotImplementedError
 
     def _save_checkpoints(self, epoch, save_best=False):
-        state = {
-            'epoch' : epoch,
-            'best' : self.best, 
-            'config' : self.config
-        }
         
         filename = Path(self.checkpoints_path)/f'-{self.model.__class__.__name__}-{epoch}.pth'
         self.logger.info(f'\nSaving checkpoints:{filename}')
-        torch.save(state, filename)
+        torch.save(self.model.state_dict(), filename)
 
         if save_best:
-            filename = self.checkpoints_path/f'best_model.pth'
-            torch.save(state, filename)
-            self.logger.info('Saving current best: best_model.pth')
+            filename = self.checkpoints_path/f'{self.model.__class__.__name__}best_model.pth'
+            torch.save(self.model.state_dict(), filename)
+            self.logger.info(f'Saving current best: {filename}')
 
     def _resume_checkpoint(self, resume_path):
         self.logger.info(f'Loading checkpoint from {resume_path}')
-        checkpoint = torch.load(resume_path)
-
-        self.start_epoch = checkpoint['epoch'] + 1
-        self.best = checkpoint['best']
-        self.not_imporved_count = 0
-
+        self.model.load_state_dict(torch.load(resume_path))
 
 
