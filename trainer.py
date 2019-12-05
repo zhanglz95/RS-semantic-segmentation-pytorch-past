@@ -6,9 +6,10 @@ from tqdm import tqdm
 from base import BaseTrainer, DataPrefetcher
 from time import time
 from utils import eval_metrics
+
 class Trainer(BaseTrainer):
-	def __init__(self, model, loss, config, train_loader, val_loader, train_logger):
-		super(Trainer, self).__init__(model, loss, config, train_loader, val_loader, train_logger)
+	def __init__(self, config, model, train_loader, val_loader):
+		super(Trainer, self).__init__(config, model, train_loader, val_loader)
 		
 		# I want to log every batch which means self.log_step = 1
 		self.log_step = int(self.train_loader.batch_size)

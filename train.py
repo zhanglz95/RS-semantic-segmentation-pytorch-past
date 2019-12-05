@@ -1,10 +1,10 @@
 import argparse
 import json
 
-# import dataloader as D
-# import models as M
-# from utils import loss as L
-# from utils import Logger
+import dataloader as D
+import models as M
+from utils import loss as L
+from utils import Logger
 
 from trainer import Trainer
 
@@ -16,11 +16,17 @@ def main():
 
 	args = parser.parse_args()
 
-	config = json.load(open(args.config))
-	#print(type(config))
+	configs = json.load(open(args.config))
 
-	trainer = Trainer(**config)
-	trainer.train()
+	train_loader = getattr(D, configs["loader_name"])(configs["train_loader"])
+	val_loader = getattr(D, configs["loader_name"])(configs["val_loader"])
+
+	model = getattr(M, configs["model"])()
+
+	trainer_config = configs["trainer"]
+
+	trainer = Trainer(trainer_config, model, train_loader, val_loader)
+	# trainer.train()
 
 if __name__ == '__main__':
 	# parser = argparse.ArgumentParser(description='Semantic Segmentation for Training...')

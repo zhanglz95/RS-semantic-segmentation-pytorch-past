@@ -1,9 +1,10 @@
 import torch
 import numpy
-from base import BaseDataSet, BaseDataLoader
 from PIL import Image
 from pathlib import Path
 from collections import namedtuple
+
+from base import BaseDataSet, BaseDataLoader
 
 root = Path('/media/zxpwhu/zxp/datasets/GID/GID/Fine Land-cover Classification_15classes')
 Pair = namedtuple('Pair', ['image', 'mask'])
@@ -24,7 +25,7 @@ class GID_rgb_dataset(BaseDataSet):
 
 
 if __name__ == "__main__":
-    
+
     path = root/"image_RGB"
     for file in path.glob("*.tif"):
         print(file)

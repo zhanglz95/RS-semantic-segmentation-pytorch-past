@@ -90,7 +90,6 @@
 		"lr": 1e-3
 	},
 
-	"loss": "dice_bce_loss",
 
 	"trainer":
     {
@@ -99,6 +98,8 @@
         "epochs": 100,
         "save_dir": "saved/", 
         "save_period": 10, 
+        
+		"loss": "dice_bce_loss",
 
         "monitor": 
         {
@@ -107,6 +108,10 @@
         },
 
         "early_stop": 10,
+        "log_per_iter": 10,
+
+        "val_per_epochs": 1,
+
         "tensorboard": true,
         "log_dir": "saved/runs",
         

@@ -2,7 +2,7 @@ import logging
 import torch
 import utils
 import json
-from torch.utils import tensorboard
+# from torch.utils import tensorboard
 from pathlib import Path
 from datetime import datetime
 
@@ -47,8 +47,8 @@ def creat_object(module, name, **args):
 class BaseTrainer:
     def __init__(self, config, model, train_loader, val_loader=None):
         self.model = model
-        self.config = config['trainer']
-        
+        self.config = config
+
         self.epochs = config['epochs']
         self.train_loader = train_loader
         self.log_per_iter = config['log_per_iter']
@@ -59,7 +59,6 @@ class BaseTrainer:
         self.logger = logging.getLogger(self.__class__.__name__)
 
         self.loss = creat_object(utils.loss, self.config['loss'])
-
         params = filter(lambda p:p.requires_grad, self.model.parameters())
         self.lr_scheduler = creat_object(utils.lr_scheduler, config['lr_sceduler'])
         self.optimizer = creat_object(utils.optim, self.config['optim'], 
