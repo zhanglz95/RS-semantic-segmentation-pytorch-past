@@ -3,101 +3,70 @@ import torch
 import utils
 import json
 import tensorboardX as tb
-# from torch.utils import tensorboard
 from pathlib import Path
 from datetime import datetime
 
-# "trainer":{
-#     "epochs": 80,
-
-#     "loss": {
-#         "name": "CrossEntropy",
-#         "args": {}
-#     },
-
-#     "optim" : {
-#         "name": "Adam", 
-#         "args": {}
-#     },
-
-#     "lr_scheduler":{
-#         "name":"StepLR",
-#         "args":{}
-#     },
-
-#     "moniter": "mIou"
-
-#     "tensorboard": true, 
-#     "writer_dir": "", 
-#     "log_per_iter": 20, 
-
-#     "val": true, 
-#     "val_per_epochs": 5, 
-
-#     "save_per_epochs": 5,
-#     "checkpoints_path":"saved/checkpoints/",
-#     "brake_for_grad_vanish": 10,
-    
-#     "resume": {
-#         "path":""
-#     }
-# }
-def creat_object(module, name, **args):
+def create_object(module, name, **args):
     return getattr(module, name)(**args)
 
 class BaseTrainer:
     def __init__(self, config, model, train_loader, val_loader=None):
         self.model = model
         self.config = config
-
+        # init iter args
+        self.start_epoch = 1
         self.epochs = config['epochs']
         self.train_loader = train_loader
-        self.log_per_iter = config['log_per_iter']
+        self.log_per_iter = self.config['log_per_iter']
         self.val = self.config['val']
         self.val_loader = val_loader
-        self.val_per_epochs = config['val_per_epochs']
+        self.val_per_epochs = self.config['val_per_epochs']
         
         self.logger = logging.getLogger(self.__class__.__name__)
 
-        self.loss = creat_object(utils.loss, self.config['loss'])
+        self.loss = create_object(utils.loss, self.config['loss'])
+        # init optim
         params = filter(lambda p:p.requires_grad, self.model.parameters())
-
         optim_config = self.config["optimizer"]
-        self.optimizer = creat_object(utils.optim, optim_config["type"], 
+        self.optimizer = create_object(utils.optim, optim_config["type"], 
                                         **{'params': params,
                                             'lr':optim_config["lr"]})
-
-        lr_scheduler_config = self.config["lr_scheduler"]
-        self.lr_scheduler = creat_object(utils.lr_scheduler, lr_scheduler_config['type'], 
-                                        **{"optimizer": self.optimizer,
-                                            'step_size': lr_scheduler_config["step_size"]})
-        
-        self.start_epoch = 1
+       # init metrics
         self.improved = False
-        self.best = float("inf")
-        self.break_for_grad_vanish = config['break_for_grad_vanish']
+        self.best_loss = float("inf")
+        self.break_for_grad_vanish = self.config['break_for_grad_vanish']
         # self.moniter = config['moniter']
 
         # Set Device
-        self.available_gpus = list(range(torch.cuda.device_count()))
-        self.device = torch.device('cuda:0' if self.available_gpus else 'cpu')
+        if self.config["use_gpu"]:
+            self.available_gpus = list(range(torch.cuda.device_count()))
+            self.device = torch.device('cuda:0' if self.available_gpus else 'cpu')
+        else:
+            self.device = torch.device("cpu")
+
         self.model.to(self.device)
 
+        # https://zhuanlan.zhihu.com/p/73711222
+        '''
+        improve speed of GPU when network and datasize fixed 
+        '''
+        torch.backends.cudnn.benchmark = self.config["cudnnBenchmarkFlag"]
+
         # CheckPoint and Tensorboard
-        self.save_per_epochs = config['save_per_epochs']
-        start_time = datetime.now().strftime("%m-%d_%H-%M")
-        self.checkpoints_path = Path(self.config['checkpoints_path'])/(config['name']+str(start_time))
+        self.save_per_epochs = self.config['save_per_epochs']
+        start_time = datetime.now().strftime("%m-%d-%H:%M")
+        self.checkpoints_path = Path(self.config['save_dir']) / (self.config['name']) / (str(start_time))
         if not self.checkpoints_path.exists():
             self.checkpoints_path.mkdir(parents=True)
         config_save_path = self.checkpoints_path/"config.json"
         with open(config_save_path, 'w') as handle:
-            json.dump(config, handle, indent=4, sort_keys=True)
+            json.dump(self.config, handle, indent=4, sort_keys=True)
 
-        writer_dir = Path(self.config['save_dir'])/config['name']/str(start_time)
+        writer_dir = Path(self.config['save_dir']) / self.config['name'] / str(start_time)
         self.writer = tb.SummaryWriter(writer_dir)
 
-        if self.config['resume']:
-            self._resume_checkpoint(self.config['resume']['resume_path'])
+        if self.config['resume_path']:
+            self._resume_checkpoint(self.config['resume_path'])
 
     def train(self):
         for epoch in range(self.start_epoch, self.epochs):

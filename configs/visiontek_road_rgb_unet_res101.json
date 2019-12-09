@@ -1,13 +1,17 @@
 {
-
-	"n_gpu": 4,
-
 	"model": "UNet",
 
 	"loader_name": "Visiontek_rgb_loader",
 
 	"train_loader": {
 		"data_dir": "./data/visiontek/road/train",
+		
+		"args": {
+			"batch_size": 1,
+			"shuffle": true,
+			"num_workers": 0,
+			"sampler": null
+		},
 
 		"augment": {
 			"applyAugment": true,
@@ -36,12 +40,6 @@
 					"size": [300, 300]
 				}
 			}
-		},
-
-		"args": {
-			"batch_size": 1,
-			"shuffle": true,
-			"num_workers": 0
 		}
 	},
 	
@@ -89,8 +87,12 @@
     {
 		"name": "visiontek_road_rgb_unet_res101",
 
-		"resume":false,
-		"resume_path":"",
+		"use_gpu": false,
+
+		"cudnnBenchmarkFlag": true,
+
+		"resume_path": null,
+
         "epochs": 100,
         "save_dir": "saved/", 
         "save_period": 10, 
@@ -99,10 +101,6 @@
 		"optimizer": {
 			"type": "SGD",
 			"lr": 1e-3
-		},
-		"lr_scheduler": {
-			"type": "StepLR",
-			"step_size": 30
 		},
 
         "monitor": 
@@ -116,8 +114,6 @@
         "val_per_epochs": 1,
         "break_for_grad_vanish": 3,
         "save_per_epochs": 1,
-
-        "checkpoints_path": "saved/checkpoints_path",
 
         "tensorboard": true,
         "log_dir": "saved/runs",

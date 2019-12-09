@@ -1,4 +1,5 @@
 import torch
+from torch.autograd import Variable
 import time
 import numpy as np
 from torchvision import transforms
@@ -11,8 +12,6 @@ class Trainer(BaseTrainer):
 	def __init__(self, config, model, train_loader, val_loader):
 		super(Trainer, self).__init__(config, model, train_loader, val_loader)
 		
-		# I want to log every batch which means self.log_step = 1
-		self.log_step = int(self.train_loader.batch_size)
 		self.num_classes = self.train_loader.dataset.num_classes
 		
 		if self.device == torch.device('cpu'):
@@ -20,9 +19,6 @@ class Trainer(BaseTrainer):
 		if prefetch:
 			self.train_loader = DataPrefetcher(train_loader, device=self.device)
 			self.val_loader = DataPrefetcher(val_loader, device=self.device)
-
-		# https://zhuanlan.zhihu.com/p/73711222
-		torch.backends.cudnn.benchmark = True
 
 	def _reset_metrics(self):
 		self.clock = time()
@@ -67,38 +63,26 @@ class Trainer(BaseTrainer):
 		total_loss = 0
 		cnt = 0
 
-		tbar = tqdm(self.train_loader, ncols=150)
-		for idx, data in enumerate(tbar, 0):
+		# tbar = tqdm(self.train_loader, ncols=150)
+		# for idx, data in enumerate(tbar, 0):
+		for idx, data in enumerate(self.train_loader, 0):
 			start_time = time()
 
 			images, masks = data[0].to(self.device), data[1].to(self.device)
+
 			outputs = self.model(images)
 
-			self.lr_scheduler.step()
-			# self.optimizer.lr = self.lr_scheduler(epoch)
 			self.optimizer.zero_grad()
 			loss = self.loss(outputs, masks)
+			print(loss)
 			loss.backward()
 			self.optimizer.step()
+
 			total_loss += loss
 			cnt += 1
-			# seg_metrics = self._get_seg_metrics(outputs, masks)
-			# mIou = seg_metrics.get('mIou')
-			# pixelAcc = seg_metrics.get('pixelAcc')
-			clock = time()
-			# if idx % self.log_per_iter == 0:
-			# 	self.logger.info(f'\nTraining,Cost Time:{clock-start_time:.2f}, epoch: {epoch+1} Iteration: {1+idx+epoch*len(self.train_loader):8d} || Loss: {total_loss/cnt:.3f} \
-			# 					|| mIou: {mIou:.3f}  pixelAcc: {pixelAcc:.3f} ')
-			# tbar.set_description(f'\nTraining, epoch: {epoch+1} Iteration: {1+idx+epoch*len(self.train_loader):8d} || Loss: {total_loss/cnt:.3f} \
-			# 					|| mIou: {mIou:.3f}  pixelAcc: {pixelAcc:.3f}')
 
-			# for k, v in list(seg_metrics.get('class_Iou')):
-			# 	self.writer.add_scalar(f'Training, iou of {self.classes[k]}', v) 
-
-		return {
-			'loss': total_loss / cnt
-			# **seg_metrics
-		}
+		average_loss = total_loss / cnt
+		return average_loss
 
 	def _val_epoch(self, epoch):
 		self.logger.info('Training Start!')
@@ -106,8 +90,9 @@ class Trainer(BaseTrainer):
 		total_loss = 0
 		cnt = 0
 
-		tbar = tqdm(self.val_loader, ncols=150)
-		for idx, data in enumerate(tbar, 0):
+		# tbar = tqdm(self.val_loader, ncols=150)
+		# for idx, data in enumerate(tbar, 0):
+		for idx, data in enumerate(self.val_loader, 0):
 			images, masks = data
 			outputs = self.model(images)
 

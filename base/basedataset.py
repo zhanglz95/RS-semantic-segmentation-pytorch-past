@@ -15,63 +15,39 @@ class BaseDataSet(Dataset):
         Initilize parameters
         root (Path): base root for original data and labeled data.
         augment (Bool): wheter does augmentation or not.
-        aug_kwargs (dict): the augmentations which you want to do. 
-        example 
-        {
-            "train":{
-                method:parameters
-            }
-            "val":{
-                method:parameters
-            }
-        }
+        augment_config (dict): the augmentations configs. 
         """
         self.root = root
-
+        # whether to use augmentation
         self.augment = augment_config["applyAugment"]
+        # which augmentation to use
         self.augment_method = augment_config["augment_method"]
+        # args for each augmentation
         self.aug_kwargs = augment_config["args"]
-
-        self.file_Paths = None
-        self.files = []
-
-        self._correspond()
+        '''
+        images root and labels root
+        pair.original_path and pair.labeled_path
+        '''
+        self.root_pair = None
+        self.file_names = []
         
     def toTensor(self, pair):
+
         to_tensor = T.ToTensor()
+
         return Pair(
             to_tensor(pair.image),
             to_tensor(pair.mask)
             )
+
     def augmentation(self, pair):
-        '''
-        self.aug_kwargs = {method(function) : {parameters of method}}
-        All augmentation methods only accept keyword parameters.
-        mode is to just whether the augmentations are done on a dataset for val or train. 
-        '''
         # TODO add augmentation for data
-
-
-        # if self.aug_kwargs:
-        #     for method in self.aug_kwargs[self.mode].keys():
-        #         pair = method(pair=pair, **(self.aug_kwargs[self.mode][method]))
         if self.augment:
             for aug in self.augment_method.keys():
                 if self.augment_method[aug]:
                     method = AUG[aug]
                     pair = method(pair, **self.aug_kwargs[aug])
         return pair
-
-    def _correspond(self):
-        '''
-        1.Set original data root and labeled data root. 
-        2.Fill self.files with namedtuples each composed by the root of train original data and labeled data.
-        
-        file_path = namedtuple('file_path', ['original_path', 'labeled_path'])
-        
-        Tips: Must be called before _load_data
-        '''
-        raise NotImplementedError
 
     def _load_data(self, index):
         '''
@@ -83,7 +59,7 @@ class BaseDataSet(Dataset):
         raise NotImplementedError
 
     def __len__(self):
-        return len(self.files)
+        return len(self.file_names)
 
     def __getitem__(self, index):
         '''
@@ -99,9 +75,3 @@ class BaseDataSet(Dataset):
             pair = self.toTensor(pair)
 
         return pair
-
-    # def __repr__(self):
-    #     fmt_str = "Dataset: " + self.__class__.__name__ + '\n'
-    #     fmt_str += f"Length:{self.__len__()}||Root:{self.root}||Mode:{self.mode} \n"
-    #     fmt_str += f"Augmentation method:\n{self.aug_kwargs[self.mode]}"
-    #     #fmt_str += f"Train_root:{self.train_root}, Label_root:{self.label_root} "

@@ -1,22 +1,12 @@
-'''
-The truth in torch.utils.DataLoader:
-1. The method it used to generate a batch is just simplly concate n tensors.
-2. 1 remind me if you want package data in your way, you must write a collect_fn.
-'''
 import torch
 from torch.utils.data import DataLoader
 from torchvision.transforms import *
 
 class BaseDataLoader(DataLoader):
     '''
-    DataLoader desgin for map-style datasets.
     Essentially, dataloader is a iterator for a iterable dataset. 
     '''
     def __init__(self, dataset, batch_size, shuffle, num_workers, sampler=None):
-        '''
-        BaseDataLoader(dataset, batch_size, shuffle, num_workers, sampler=None, **kwargs)
-        kwargs(dict): you can customize parameters which are pass to torch.DataLoader .
-        '''
         self.shuffle = shuffle
         self.dataset = dataset
         self.nbr_examples = len(dataset)

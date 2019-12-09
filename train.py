@@ -15,31 +15,24 @@ def main():
 		type=str, help='Path to the config file.')
 
 	args = parser.parse_args()
-
+	# load configs from .json
 	configs = json.load(open(args.config))
-
+	# initial train and valid loader
 	train_loader = getattr(D, configs["loader_name"])(configs["train_loader"])
 	val_loader = getattr(D, configs["loader_name"])(configs["val_loader"])
-
+	# initial model
 	model = getattr(M, configs["model"])()
+	# get trainer configs
+	trainer_configs = configs["trainer"]
 
-	trainer_config = configs["trainer"]
-
-	trainer = Trainer(trainer_config, model, train_loader, val_loader)
+	trainer = Trainer(
+		trainer_configs, 
+		model, 
+		train_loader, 
+		val_loader
+		)
+	# start training
 	trainer.train()
 
 if __name__ == '__main__':
-	# parser = argparse.ArgumentParser(description='Semantic Segmentation for Training...')
-
-	# parser.add_argument('-c', '--config', default='./configs/visiontek_road_rgb_unet_res101.json', 
-	# 	type=str, help='Path to the config file.')
-	# parser.add_argument('-r', '--resume', default=None, 
-	# 	type=str, help='Path to checkpoint for resume training.')
-
-	
-	# if args.resume:
-	#  	config = torch.load(args.resume)['config']
-
-	#main(config, args.resume)
-
 	main()
