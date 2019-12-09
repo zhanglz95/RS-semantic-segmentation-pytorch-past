@@ -104,13 +104,21 @@ class Crop():
         # mask.save("./aug_test/crop_mask.jpg")
         return Pair(image, mask)
 
+class Resize():
+    def __call__(self, pair, size):
+        return Pair(
+            pair.image.resize(size),
+            pair.mask.resize(size)
+            )
+
 AUG = {
     "HorizontalFlip": HorizontalFlip(),
     "VerticalFlip": VerticalFlip(),
     "Scale": Scale(),
     "Translation": Translation(),
     "Rotation": Rotation(),
-    "Crop": Crop()
+    "Crop": Crop(),
+    "Resize": Resize()
 }
 
 # TEST

@@ -2,6 +2,7 @@ import logging
 import torch
 import utils
 import json
+import tensorboardX as tb
 # from torch.utils import tensorboard
 from pathlib import Path
 from datetime import datetime
@@ -60,17 +61,22 @@ class BaseTrainer:
 
         self.loss = creat_object(utils.loss, self.config['loss'])
         params = filter(lambda p:p.requires_grad, self.model.parameters())
-        self.lr_scheduler = creat_object(utils.lr_scheduler, config['lr_sceduler'])
-        self.optimizer = creat_object(utils.optim, self.config['optim'], 
+
+        optim_config = self.config["optimizer"]
+        self.optimizer = creat_object(utils.optim, optim_config["type"], 
                                         **{'params': params,
-                                            'lr':self.lr_scheduler(0)})
-        self.classes = train_loader.classes
+                                            'lr':optim_config["lr"]})
+
+        lr_scheduler_config = self.config["lr_scheduler"]
+        self.lr_scheduler = creat_object(utils.lr_scheduler, lr_scheduler_config['type'], 
+                                        **{"optimizer": self.optimizer,
+                                            'step_size': lr_scheduler_config["step_size"]})
         
         self.start_epoch = 1
         self.improved = False
-        self.best = 0
-        self.brake_for_grad_vanish = config['brake_for_grad_vanish']
-        self.moniter = config['moniter']
+        self.best = float("inf")
+        self.break_for_grad_vanish = config['break_for_grad_vanish']
+        # self.moniter = config['moniter']
 
         # Set Device
         self.available_gpus = list(range(torch.cuda.device_count()))
@@ -81,13 +87,14 @@ class BaseTrainer:
         self.save_per_epochs = config['save_per_epochs']
         start_time = datetime.now().strftime("%m-%d_%H-%M")
         self.checkpoints_path = Path(self.config['checkpoints_path'])/(config['name']+str(start_time))
-        self.checkpoints_path.mkdir()
+        if not self.checkpoints_path.exists():
+            self.checkpoints_path.mkdir(parents=True)
         config_save_path = self.checkpoints_path/"config.json"
         with open(config_save_path, 'w') as handle:
             json.dump(config, handle, indent=4, sort_keys=True)
 
-        writer_dir = Path(self.config['writer_dir'])/config['name']/str(start_time)
-        self.writer = tensorboard.SummaryWriter(writer_dir)
+        writer_dir = Path(self.config['save_dir'])/config['name']/str(start_time)
+        self.writer = tb.SummaryWriter(writer_dir)
 
         if self.config['resume']:
             self._resume_checkpoint(self.config['resume']['resume_path'])
@@ -104,9 +111,11 @@ class BaseTrainer:
                 self.logger.info(f'\n{str(key):15s}: {value}')
 
             # Check if this is the best model
-            self.improved = results[self.moniter] > self.best
+            # self.improved = results[self.moniter] > self.best
+            self.improved = results["loss"] < self.best
             if self.improved:
-                self.best = results[self.moniter]
+                # self.best = results[self.moniter]
+                self.improved = results["loss"]
                 self.not_imporved_count = 0
             else:
                 self.not_imporved_count += 1

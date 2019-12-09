@@ -1,5 +1,4 @@
 {
-	"name": "visiontek_road_rgb_unet_res101",
 
 	"n_gpu": 4,
 
@@ -15,10 +14,10 @@
 			"augment_method": {
 				"HorizontalFlip": true,
 				"VerticalFlip": true,
-				"Scale": true,
 				"Translation": true,
 				"Rotation": true,
-				"Crop": true
+				"Crop": true,
+				"Scale": true
 			},
 			"args": {
 				"HorizontalFlip": {},
@@ -54,10 +53,10 @@
 			"augment_method": {
 				"HorizontalFlip": true,
 				"VerticalFlip": true,
-				"Scale": true,
 				"Translation": true,
 				"Rotation": true,
-				"Crop": true
+				"Crop": true,
+				"Scale": true
 			},
 			"args": {
 				"HorizontalFlip": {},
@@ -85,21 +84,26 @@
 		}
 	},
 
-	"optimizer": {
-		"type": "SGD",
-		"lr": 1e-3
-	},
-
 
 	"trainer":
     {
+		"name": "visiontek_road_rgb_unet_res101",
+
 		"resume":false,
 		"resume_path":"",
         "epochs": 100,
         "save_dir": "saved/", 
         "save_period": 10, 
         
-		"loss": "dice_bce_loss",
+		"loss": "BCELoss",
+		"optimizer": {
+			"type": "SGD",
+			"lr": 1e-3
+		},
+		"lr_scheduler": {
+			"type": "StepLR",
+			"step_size": 30
+		},
 
         "monitor": 
         {
@@ -109,8 +113,11 @@
 
         "early_stop": 10,
         "log_per_iter": 10,
-
         "val_per_epochs": 1,
+        "break_for_grad_vanish": 3,
+        "save_per_epochs": 1,
+
+        "checkpoints_path": "saved/checkpoints_path",
 
         "tensorboard": true,
         "log_dir": "saved/runs",

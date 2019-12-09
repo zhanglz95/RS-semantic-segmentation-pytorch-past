@@ -88,3 +88,5 @@ class UNet(nn.Module):
 		out = self.up1(torch.cat((self.trans1(out), conv1_out), 1))
 
 		out = self.conv_last(out)
+
+		return out

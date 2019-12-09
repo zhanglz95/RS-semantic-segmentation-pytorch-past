@@ -74,30 +74,30 @@ class Trainer(BaseTrainer):
 			images, masks = data[0].to(self.device), data[1].to(self.device)
 			outputs = self.model(images)
 
-			self.optimizer.lr = self.lr_scheduler(epoch)
+			self.lr_scheduler.step()
+			# self.optimizer.lr = self.lr_scheduler(epoch)
 			self.optimizer.zero_grad()
-
 			loss = self.loss(outputs, masks)
 			loss.backward()
 			self.optimizer.step()
 			total_loss += loss
 			cnt += 1
-			seg_metrics = self._get_seg_metrics(outputs, masks, self.num_classes)
-			mIou = seg_metrics.get('mIou')
-			pixelAcc = seg_metrics.get('pixelAcc')
+			# seg_metrics = self._get_seg_metrics(outputs, masks)
+			# mIou = seg_metrics.get('mIou')
+			# pixelAcc = seg_metrics.get('pixelAcc')
 			clock = time()
-			if idx % self.log_per_iter == 0:
-				self.logger.info(f'\nTraining,Cost Time:{clock-start_time:.2f}, epoch: {epoch+1} Iteration: {1+idx+epoch*len(self.train_loader):8d} || Loss: {total_loss/cnt:.3f} \
-								|| mIou: {mIou:.3f}  pixelAcc: {pixelAcc:.3f} ')
-			tbar.set_description(f'\nTraining, epoch: {epoch+1} Iteration: {1+idx+epoch*len(self.train_loader):8d} || Loss: {total_loss/cnt:.3f} \
-								|| mIou: {mIou:.3f}  pixelAcc: {pixelAcc:.3f}')
+			# if idx % self.log_per_iter == 0:
+			# 	self.logger.info(f'\nTraining,Cost Time:{clock-start_time:.2f}, epoch: {epoch+1} Iteration: {1+idx+epoch*len(self.train_loader):8d} || Loss: {total_loss/cnt:.3f} \
+			# 					|| mIou: {mIou:.3f}  pixelAcc: {pixelAcc:.3f} ')
+			# tbar.set_description(f'\nTraining, epoch: {epoch+1} Iteration: {1+idx+epoch*len(self.train_loader):8d} || Loss: {total_loss/cnt:.3f} \
+			# 					|| mIou: {mIou:.3f}  pixelAcc: {pixelAcc:.3f}')
 
-			for k, v in list(seg_metrics.get('class_Iou')):
-				self.writer.add_scalar(f'Training, iou of {self.classes[k]}', v) 
-		
+			# for k, v in list(seg_metrics.get('class_Iou')):
+			# 	self.writer.add_scalar(f'Training, iou of {self.classes[k]}', v) 
+
 		return {
-			'loss': total_loss / cnt, 
-			**seg_metrics
+			'loss': total_loss / cnt
+			# **seg_metrics
 		}
 
 	def _val_epoch(self, epoch):
@@ -127,7 +127,7 @@ class Trainer(BaseTrainer):
 								|| mIou: {mIou:.3f}  pixelAcc: {pixelAcc:.3f}')
 
 			for k, v in list(seg_metrics.get('class_Iou')):
-				self.writer.add_scalar(f'\nValdiation, iou of {self.classes[k]}', v) 
+				self.writer.add_scalar(f'\nValdiation, iou', v) 
 		
 		return {
 			'loss': total_loss / cnt, 

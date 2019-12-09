@@ -13,7 +13,7 @@ Pair = namedtuple('Pair', ['image', 'mask'])
 class Visiontek_rgb_dataset(BaseDataSet):
 	def __init__(self, root, augment_config):
 		super(Visiontek_rgb_dataset, self).__init__(root, augment_config)
-
+		self.num_classes = 1
 
 	def _correspond(self):
 		file_path = namedtuple("file_path", ['original_path', 'labeled_path'])
@@ -41,8 +41,8 @@ class Visiontek_rgb_loader(BaseDataLoader):
 		# fetch configs for datasets
 		augment_config = loader_configs["augment"]
 
-		dataset = Visiontek_rgb_dataset(root, augment_config)
+		self.dataset = Visiontek_rgb_dataset(root, augment_config)
 
-		super(Visiontek_rgb_loader, self).__init__(dataset, **loader_configs["args"])
+		super(Visiontek_rgb_loader, self).__init__(self.dataset, **loader_configs["args"])
 
 		

@@ -26,7 +26,7 @@ def main():
 	trainer_config = configs["trainer"]
 
 	trainer = Trainer(trainer_config, model, train_loader, val_loader)
-	# trainer.train()
+	trainer.train()
 
 if __name__ == '__main__':
 	# parser = argparse.ArgumentParser(description='Semantic Segmentation for Training...')
