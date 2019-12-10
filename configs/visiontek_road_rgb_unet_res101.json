@@ -44,23 +44,23 @@
 	},
 	
 	"val_loader": {
-		"data_dir": "./data/visiontek/road/val",
+		"data_dir": "./data/visiontek/road/valid",
 
 		"augment": {
-			"applyAugment": false,
+			"applyAugment": true,
 			"augment_method": {
-				"HorizontalFlip": true,
-				"VerticalFlip": true,
-				"Translation": true,
-				"Rotation": true,
-				"Crop": true,
+				"HorizontalFlip": false,
+				"VerticalFlip": false,
+				"Translation": false,
+				"Rotation": false,
+				"Crop": false,
 				"Scale": true
 			},
 			"args": {
 				"HorizontalFlip": {},
 				"VerticalFlip": {},
 				"Scale": {
-					"size": [1024, 1024]
+					"size": [512, 512]
 				},
 				"Translation": {
 					"factor": 0.2
@@ -76,9 +76,9 @@
 		},
 
 		"args":{
-			"batch_size": 8,
+			"batch_size": 2,
 			"shuffle": false,
-			"num_workers": 8
+			"num_workers": 0
 		}
 	},
 
@@ -118,7 +118,7 @@
         "tensorboard": true,
         "log_dir": "saved/runs",
         
-        "val": false,
+        "val": true,
         "val_per_epoch": 5 
     }
 }

@@ -22,7 +22,7 @@ class BaseDataLoader(DataLoader):
             'batch_sampler':self.batch_sampler, 
             'num_workers':num_workers, 
             'collate_fn':None,
-            'pin_memory':True,
+            'pin_memory':False,
             'drop_last':False,
             'timeout':0,
             'worker_init_fn':None
@@ -43,7 +43,6 @@ class DataPrefetcher(object):
         self.stop_after = stop_after
         self.next_pair = None
         self.device = device
-
     def __len__(self):
         return len(self.loader)
 

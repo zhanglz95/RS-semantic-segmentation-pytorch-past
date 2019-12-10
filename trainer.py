@@ -6,7 +6,7 @@ from torchvision import transforms
 from tqdm import tqdm
 from base import BaseTrainer, DataPrefetcher
 from time import time
-from utils import eval_metrics
+from utils.metrics import Metrics
 
 class Trainer(BaseTrainer):
 	def __init__(self, config, model, train_loader, val_loader):
@@ -22,32 +22,13 @@ class Trainer(BaseTrainer):
 			self.train_loader = DataPrefetcher(train_loader, device=self.device)
 			self.val_loader = DataPrefetcher(val_loader, device=self.device)
 
-	def _reset_metrics(self):
-		self.clock = time()
-		self.total_inter, self.total_union = 0, 0
-		self.total_correct, self.total_label = 0, 0
-
-
-	# def _update_seg_metrics(self, correct, labeled, inter, union):
-	# 	'''
-	# 	correct, labeled, intern, union, each one of them is a list which length is num_classes.
-	# 	Summary:
-	# 		1.IOU for class i = total_inter[i-1] / total_union[i-1]
-	# 		2.union[i] -> the union of (i+1)-th class.
-	# 		3.total_union[i] -> the total union of (i+1)-th class in this batch 
-	# 	'''
-		
-	# 	self.total_correct += correct
-	# 	self.total_label += labeled
-	# 	self.total_inter += inter
-	# 	self.total_union += union
- 
-	def _update_seg_metrics(self, **seg_metrics):
-		pass
-
-
 	def _get_seg_metrics(self, outputs, masks):
-		pixAcc = 1.0 * self.total_correct / (np.spacing(1) + self.total_label)
+		metrics = Metrics(outputs, masks)
+
+		pixAcc = metrics.pixel_accuracy()
+
+
+
 		Iou = 1.0 * self.total_inter / (np.spacing(1) + self.total_union)
 		mIou = Iou.mean()
 		# This miou still calculate mean on classes.
@@ -62,12 +43,14 @@ class Trainer(BaseTrainer):
 		total_loss = 0
 		cnt = 0
 
-		# tbar = tqdm(self.train_loader, ncols=150)
-		# for idx, data in enumerate(tbar, 0):
-		for idx, data in enumerate(self.train_loader, 0):
+		tbar = tqdm(self.train_loader, ncols=150)
+		for idx, data in enumerate(tbar, 0):
+		# for idx, data in enumerate(self.train_loader, 0):
 			start_time = time()
 
-			images, masks = data[0].to(self.device), data[1].to(self.device)
+			images, masks = data
+			images = images.to(self.device)
+			masks = masks.to(self.device)
 
 			outputs = self.model(images)
 
@@ -79,6 +62,8 @@ class Trainer(BaseTrainer):
 			total_loss += loss
 			cnt += 1
 
+			tbar.set_description(f'\nTraining, epoch: {epoch}, Iteration: {idx} || ave_Loss: {total_loss / cnt}')
+
 		average_loss = total_loss / cnt
 		return average_loss
 
@@ -87,17 +72,19 @@ class Trainer(BaseTrainer):
 		total_loss = 0
 		cnt = 0
 
-		# tbar = tqdm(self.val_loader, ncols=150)
-		# for idx, data in enumerate(tbar, 0):
-		for idx, data in enumerate(self.val_loader, 0):
+		tbar = tqdm(self.val_loader, ncols=150)
+		for idx, data in enumerate(tbar, 0):
 			images, masks = data
-			outputs = self.model(images)
+			images = images.to(self.device)
+			masks = masks.to(self.device)
+
+			outputs = self.model(images).detach()
 
 			loss = self.loss(outputs, masks)
 			total_loss += loss
 			cnt += 1
 
-			seg_metrics = self._get_seg_metrics(outputs, masks, self.num_classes)
+			seg_metrics = self._get_seg_metrics(outputs, masks)
 			mIou = seg_metrics.get('mIou')
 			pixelAcc = seg_metrics.get('pixelAcc')
 
