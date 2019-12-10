@@ -32,12 +32,14 @@ class BaseDataSet(Dataset):
         self.file_names = []
         
     def toTensor(self, pair):
+        image = np.asarray(pair.image)
+        mask = np.asarray(pair.mask)
 
         to_tensor = T.ToTensor()
 
         return Pair(
-            to_tensor(pair.image),
-            to_tensor(pair.mask)
+            to_tensor(image),
+            to_tensor(mask)
             )
 
     def augmentation(self, pair):

@@ -16,6 +16,8 @@ class Trainer(BaseTrainer):
 		
 		if self.device == torch.device('cpu'):
 			prefetch = False
+		else:
+			prefetch = True
 		if prefetch:
 			self.train_loader = DataPrefetcher(train_loader, device=self.device)
 			self.val_loader = DataPrefetcher(val_loader, device=self.device)
@@ -44,7 +46,6 @@ class Trainer(BaseTrainer):
 		pass
 
 
-# !!!!!This fucntion is unused
 	def _get_seg_metrics(self, outputs, masks):
 		pixAcc = 1.0 * self.total_correct / (np.spacing(1) + self.total_label)
 		Iou = 1.0 * self.total_inter / (np.spacing(1) + self.total_union)
@@ -53,12 +54,10 @@ class Trainer(BaseTrainer):
 		return {
 			"pixelAcc":np.round(pixAcc, 3),
 			"mIou":np.round(mIou, 3), 
-			"class_Iou":dict(zip(range(self.num_classes), np.round(Iou, 3))),
-			
+			"class_Iou":dict(zip(range(self.num_classes), np.round(Iou, 3)))
 		}
 
 	def _train_epoch(self, epoch):
-		self.logger.info('Training Start!')
 		self.model.train()
 		total_loss = 0
 		cnt = 0
@@ -74,7 +73,6 @@ class Trainer(BaseTrainer):
 
 			self.optimizer.zero_grad()
 			loss = self.loss(outputs, masks)
-			print(loss)
 			loss.backward()
 			self.optimizer.step()
 
@@ -85,7 +83,6 @@ class Trainer(BaseTrainer):
 		return average_loss
 
 	def _val_epoch(self, epoch):
-		self.logger.info('Training Start!')
 		self.model.eval()
 		total_loss = 0
 		cnt = 0
@@ -103,10 +100,6 @@ class Trainer(BaseTrainer):
 			seg_metrics = self._get_seg_metrics(outputs, masks, self.num_classes)
 			mIou = seg_metrics.get('mIou')
 			pixelAcc = seg_metrics.get('pixelAcc')
-
-			if idx % self.log_per_iter == 0:
-				self.logger.info(f'\nValdiation, epoch: {epoch+1} Iteration: {1+idx+epoch*len(self.train_loader):8d} || Loss: {total_loss/cnt:.3f} \
-								|| mIou: {mIou:.3f}  pixelAcc: {pixelAcc:.3f}')
 
 			tbar.set_description(f'\nValdiation, epoch: {epoch+1} Iteration: {1+idx+epoch*len(self.train_loader):8d} || Loss: {total_loss/cnt:.3f} \
 								|| mIou: {mIou:.3f}  pixelAcc: {pixelAcc:.3f}')

@@ -16,18 +16,18 @@
 		"augment": {
 			"applyAugment": true,
 			"augment_method": {
-				"HorizontalFlip": true,
-				"VerticalFlip": true,
-				"Translation": true,
-				"Rotation": true,
-				"Crop": true,
+				"HorizontalFlip": false,
+				"VerticalFlip": false,
+				"Translation": false,
+				"Rotation": false,
+				"Crop": false,
 				"Scale": true
 			},
 			"args": {
 				"HorizontalFlip": {},
 				"VerticalFlip": {},
 				"Scale": {
-					"size": [1024, 1024]
+					"size": [512, 512]
 				},
 				"Translation": {
 					"factor": 0.2
@@ -37,7 +37,7 @@
 				},
 				"Crop": {
 					"corner": [0, 0],
-					"size": [300, 300]
+					"size": [1024, 1024]
 				}
 			}
 		}
@@ -100,7 +100,7 @@
 		"loss": "BCELoss",
 		"optimizer": {
 			"type": "SGD",
-			"lr": 1e-3
+			"lr": 1e-1
 		},
 
         "monitor": 
@@ -118,7 +118,7 @@
         "tensorboard": true,
         "log_dir": "saved/runs",
         
-        "val": true,
+        "val": false,
         "val_per_epoch": 5 
     }
 }

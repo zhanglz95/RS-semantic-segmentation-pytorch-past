@@ -54,8 +54,10 @@ class DataPrefetcher(object):
             self.next_pair = None
             return 
         with torch.cuda.stream(self.stream):
-            self.next_pair._replace(original=self.next_pair.original.cuda(device=self.device, non_blocking=True),
-                                    labeled=self.next_pair.labeled.cuda(device=self.device, non_blocking=True))
+            self.next_pair._replace(
+                image=self.next_pair.image.cuda(device=self.device, non_blocking=True),
+                mask=self.next_pair.mask.cuda(device=self.device, non_blocking=True)
+                )
 
     def __iter__(self):
         count = 0

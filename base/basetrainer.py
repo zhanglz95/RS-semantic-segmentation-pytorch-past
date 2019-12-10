@@ -1,4 +1,3 @@
-import logging
 import torch
 import utils
 import json
@@ -17,13 +16,10 @@ class BaseTrainer:
         self.start_epoch = 1
         self.epochs = config['epochs']
         self.train_loader = train_loader
-        self.log_per_iter = self.config['log_per_iter']
         self.val = self.config['val']
         self.val_loader = val_loader
         self.val_per_epochs = self.config['val_per_epochs']
         
-        self.logger = logging.getLogger(self.__class__.__name__)
-
         self.loss = create_object(utils.loss, self.config['loss'])
         # init optim
         params = filter(lambda p:p.requires_grad, self.model.parameters())
@@ -70,33 +66,25 @@ class BaseTrainer:
 
     def train(self):
         for epoch in range(self.start_epoch, self.epochs):
-            results = self._train_epoch(epoch)
+            this_loss = self._train_epoch(epoch)
             if self.val and epoch % self.val_per_epochs == 0:
                 results = self._val_epoch(epoch)
 
-            # logging info
-            self.logger.info(f'\n Info for epoch: {epoch}')
-            for key, value in results.items():
-                self.logger.info(f'\n{str(key):15s}: {value}')
-
             # Check if this is the best model
-            # self.improved = results[self.moniter] > self.best
-            self.improved = results["loss"] < self.best
+            self.improved = this_loss < self.best_loss
             if self.improved:
-                # self.best = results[self.moniter]
-                self.improved = results["loss"]
+                self.best_loss = this_loss
                 self.not_imporved_count = 0
+                self._save_checkpoints("best")
             else:
                 self.not_imporved_count += 1
 
-            if self.not_imporved_count > self.brake_for_grad_vanish:
-                self.logger.info(f'\nThis Model has not improved for {self.not_imporved_count} epochs.\n \
-                                 Training stop.')
+            if self.not_imporved_count > self.break_for_grad_vanish:
                 break
 
             # save checkpoint
             if epoch % self.save_per_epochs == 0:
-                self._save_checkpoints(epoch, save_best=self.improved)
+                self._save_checkpoints(epoch)
 
 
 
@@ -107,19 +95,11 @@ class BaseTrainer:
     def _eval_metrics(self, image, mask):
         raise NotImplementedError
 
-    def _save_checkpoints(self, epoch, save_best=False):
-        
-        filename = Path(self.checkpoints_path)/f'-{self.model.__class__.__name__}-{epoch}.pth'
-        self.logger.info(f'\nSaving checkpoints:{filename}')
+    def _save_checkpoints(self, name):
+        filename = Path(self.checkpoints_path)/f'-{self.model.__class__.__name__}-{name}.pth'
         torch.save(self.model.state_dict(), filename)
 
-        if save_best:
-            filename = self.checkpoints_path/f'{self.model.__class__.__name__}best_model.pth'
-            torch.save(self.model.state_dict(), filename)
-            self.logger.info(f'Saving current best: {filename}')
-
     def _resume_checkpoint(self, resume_path):
-        self.logger.info(f'Loading checkpoint from {resume_path}')
         self.model.load_state_dict(torch.load(resume_path))
 
 
