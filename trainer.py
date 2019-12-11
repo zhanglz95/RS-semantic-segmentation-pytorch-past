@@ -11,9 +11,6 @@ from utils.metrics import Metrics
 class Trainer(BaseTrainer):
 	def __init__(self, config, model, train_loader, val_loader):
 		super(Trainer, self).__init__(config, model, train_loader, val_loader)
-		
-		self.num_classes = self.train_loader.dataset.num_classes
-		
 		if self.device == torch.device('cpu'):
 			prefetch = False
 		else:
@@ -26,16 +23,11 @@ class Trainer(BaseTrainer):
 		metrics = Metrics(outputs, masks)
 
 		pixAcc = metrics.pixel_accuracy()
+		iou = metrics.iou()
 
-
-
-		Iou = 1.0 * self.total_inter / (np.spacing(1) + self.total_union)
-		mIou = Iou.mean()
-		# This miou still calculate mean on classes.
 		return {
-			"pixelAcc":np.round(pixAcc, 3),
-			"mIou":np.round(mIou, 3), 
-			"class_Iou":dict(zip(range(self.num_classes), np.round(Iou, 3)))
+			"pixelAcc": pixAcc.mean(),
+			"iou": iou.mean()
 		}
 
 	def _train_epoch(self, epoch):
@@ -54,6 +46,10 @@ class Trainer(BaseTrainer):
 
 			outputs = self.model(images)
 
+			seg_metrics = self._get_seg_metrics(outputs, masks)
+			pixelAcc = seg_metrics.get('pixelAcc')
+			iou = seg_metrics.get('iou')
+
 			self.optimizer.zero_grad()
 			loss = self.loss(outputs, masks)
 			loss.backward()
@@ -62,7 +58,7 @@ class Trainer(BaseTrainer):
 			total_loss += loss
 			cnt += 1
 
-			tbar.set_description(f'\nTraining, epoch: {epoch}, Iteration: {idx} || ave_Loss: {total_loss / cnt}')
+			tbar.set_description(f'\nTraining, epoch: {epoch}, Iteration: {idx} || ave_Loss: {total_loss / cnt} || pixelAcc: {pixelAcc:.3f} || iou: {iou:.3f}')
 
 		average_loss = total_loss / cnt
 		return average_loss
@@ -85,14 +81,11 @@ class Trainer(BaseTrainer):
 			cnt += 1
 
 			seg_metrics = self._get_seg_metrics(outputs, masks)
-			mIou = seg_metrics.get('mIou')
+
 			pixelAcc = seg_metrics.get('pixelAcc')
 
 			tbar.set_description(f'\nValdiation, epoch: {epoch+1} Iteration: {1+idx+epoch*len(self.train_loader):8d} || Loss: {total_loss/cnt:.3f} \
-								|| mIou: {mIou:.3f}  pixelAcc: {pixelAcc:.3f}')
-
-			for k, v in list(seg_metrics.get('class_Iou')):
-				self.writer.add_scalar(f'\nValdiation, iou', v) 
+								|| pixelAcc: {pixelAcc:.3f}')
 		
 		return {
 			'loss': total_loss / cnt, 

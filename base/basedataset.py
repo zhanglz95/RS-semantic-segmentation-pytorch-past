@@ -33,17 +33,18 @@ class BaseDataSet(Dataset):
         
     def toTensor(self, pair):
         image = np.asarray(pair.image)
-        mask = np.asarray(pair.mask)
+        mask = np.asarray(pair.mask, dtype=np.int64)
 
         to_tensor = T.ToTensor()
 
         return Pair(
             to_tensor(image),
-            to_tensor(mask)
+            torch.from_numpy(mask)
             )
 
     def augmentation(self, pair):
         # TODO add augmentation for data
+        # Return numpy.ndarray Pair
         if self.augment:
             for aug in self.augment_method.keys():
                 if self.augment_method[aug]:
@@ -75,5 +76,4 @@ class BaseDataSet(Dataset):
             pair = self._load_data(index)
             pair = self.augmentation(pair)
             pair = self.toTensor(pair)
-
         return pair

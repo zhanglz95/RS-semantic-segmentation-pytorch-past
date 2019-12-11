@@ -26,7 +26,9 @@ class Visiontek_rgb_dataset(BaseDataSet):
 		maskPath = self.root_pair.labeled_path / (self.file_names[index] + ".png")
 
 		image = Image.open(imgPath).convert('RGB')
-		mask = Image.open(maskPath).convert('L')
+		mask = np.array(Image.open(maskPath).convert('L'))
+		mask[mask > 128] = 1
+		mask = Image.fromarray(mask)
 		return Pair(image, mask)
 
 class Visiontek_rgb_loader(BaseDataLoader):

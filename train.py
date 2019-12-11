@@ -21,7 +21,8 @@ def main():
 	train_loader = getattr(D, configs["loader_name"])(configs["train_loader"])
 	val_loader = getattr(D, configs["loader_name"])(configs["val_loader"])
 	# initial model
-	model = getattr(M, configs["model"])()
+	num_classes = configs["num_classes"]
+	model = getattr(M, configs["model"])(num_classes = num_classes)
 	# get trainer configs
 	trainer_configs = configs["trainer"]
 

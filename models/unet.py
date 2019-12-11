@@ -3,7 +3,7 @@ import torch.nn as nn
 from torch.autograd import Variable as V
 
 class UNet(nn.Module):
-	def __init__(self):
+	def __init__(self, num_classes = 1):
 		super(UNet, self).__init__()
 		self.down1 = self.conv_stage(3, 8)
 		self.down2 = self.conv_stage(8, 16)
@@ -32,8 +32,8 @@ class UNet(nn.Module):
 		self.trans1 = self.upsample(16, 8)
 
 		self.conv_last = nn.Sequential(
-			nn.Conv2d(8, 1, 3, 1, 1),
-			nn.Sigmoid()
+			nn.Conv2d(8, num_classes + 1, 3, 1, 1),
+			nn.LogSoftmax(dim=1)
 			)
 
 		self.max_pool = nn.MaxPool2d(2)
@@ -88,5 +88,4 @@ class UNet(nn.Module):
 		out = self.up1(torch.cat((self.trans1(out), conv1_out), 1))
 
 		out = self.conv_last(out)
-
 		return out

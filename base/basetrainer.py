@@ -14,7 +14,7 @@ class BaseTrainer:
         self.config = config
         # init iter args
         self.start_epoch = 1
-        self.epochs = config['epochs']
+        self.epochs = self.config['epochs']
         self.train_loader = train_loader
         self.val = self.config['val']
         self.val_loader = val_loader
@@ -66,10 +66,10 @@ class BaseTrainer:
 
     def train(self):
         for epoch in range(self.start_epoch, self.epochs):
-            # this_loss = self._train_epoch(epoch)
-            # if self.val and epoch % self.val_per_epochs == 0:
-                # results = self._val_epoch(epoch)
-            results = self._val_epoch(epoch)
+            this_loss = self._train_epoch(epoch)
+            if self.val and epoch % self.val_per_epochs == 0:
+                results = self._val_epoch(epoch)
+            # results = self._val_epoch(epoch)
 
             # Check if this is the best model
             self.improved = this_loss < self.best_loss

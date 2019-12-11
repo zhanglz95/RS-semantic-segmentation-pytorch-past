@@ -3,17 +3,28 @@ import numpy as np
 
 class Metrics:
     def __init__(self, outputs, targets):
-        self.outputs = outputs
+        self.outputs = torch.argmax(outputs, axis=1)
         self.targets = targets
 
     def pixel_accuracy(self):
         outputs = np.asarray(self.outputs)
         targets = np.asarray(self.targets)
 
-        pixel_labeled = np.sum(targets > 0, (1, 2, 3))
-        pixel_correct = np.sum(((outputs == targets) * (targets > 0)), (1, 2, 3))
+        pixel_labeled = np.sum(targets > 0, (1, 2))
+        pixel_correct = np.sum(((outputs == targets) * (targets > 0)), (1, 2))
         
         return (pixel_correct / pixel_labeled)
+
+    def iou(self):
+        outputs = np.asarray(self.outputs)
+        targets = np.asarray(self.targets)
+
+        inter = (outputs == targets) & (targets != 0)
+        union = (outputs != 0) | (targets != 0)
+        inter_sum = np.sum(inter, (1, 2))
+        union_sum = np.sum(union, (1, 2))
+
+        return (inter_sum / union_sum)
 
 # class AverageMeter(object):
 #     """Computes and stores the average and current value"""
