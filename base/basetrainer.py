@@ -30,6 +30,10 @@ class BaseTrainer:
        # init metrics
         self.improved = False
         self.best_loss = float("inf")
+        self.best_iou = 0
+
+        self.loss_not_improved_count = 0
+        self.iou_not_improved_count = 0
         self.break_for_grad_vanish = self.config['break_for_grad_vanish']
         # self.moniter = config['moniter']
 
@@ -68,19 +72,29 @@ class BaseTrainer:
         for epoch in range(self.start_epoch, self.epochs):
             this_loss = self._train_epoch(epoch)
             if self.val and epoch % self.val_per_epochs == 0:
-                results = self._val_epoch(epoch)
+                iou = self._val_epoch(epoch)
+                self.improved = iou > self.best_iou
+                if self.improved:
+                    self.best_iou = iou
+                    self.iou_not_improved_count = 0
+                    self._save_checkpoints("best_iou")
+                else:
+                    self.iou_not_improved_count += self.val_per_epochs
+
+                if self.iou_not_improved_count > self.break_for_grad_vanish * 2:
+                    break
             # results = self._val_epoch(epoch)
 
             # Check if this is the best model
             self.improved = this_loss < self.best_loss
             if self.improved:
                 self.best_loss = this_loss
-                self.not_imporved_count = 0
-                self._save_checkpoints("best")
+                self.loss_not_improved_count = 0
+                self._save_checkpoints("best_loss")
             else:
-                self.not_imporved_count += 1
+                self.loss_not_improved_count += 1
 
-            if self.not_imporved_count > self.break_for_grad_vanish:
+            if self.loss_not_improved_count > self.break_for_grad_vanish:
                 break
 
             # save checkpoint
@@ -92,8 +106,6 @@ class BaseTrainer:
     def _train_epoch(self, epoch):
         raise NotImplementedError
     def _val_epoch(self, epoch):
-        raise NotImplementedError
-    def _eval_metrics(self, image, mask):
         raise NotImplementedError
 
     def _save_checkpoints(self, name):

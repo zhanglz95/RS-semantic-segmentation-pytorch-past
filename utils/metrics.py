@@ -2,20 +2,31 @@ import torch
 import numpy as np
 
 class Metrics:
-    def __init__(self, outputs, targets):
+    def __init__(self):
+        # For global IoU
+        self.global_inter = 0
+        self.global_union = 0
+
+        self.outputs = None
+        self.targets = None
+
+    def update_input(self, outputs, targets):
         self.outputs = torch.argmax(outputs, axis=1)
         self.targets = targets
 
-    def pixel_accuracy(self):
-        outputs = np.asarray(self.outputs)
-        targets = np.asarray(self.targets)
+    # def pixel_accuracy(self):
+    #     outputs = np.asarray(self.outputs)
+    #     targets = np.asarray(self.targets)
 
-        pixel_labeled = np.sum(targets > 0, (1, 2))
-        pixel_correct = np.sum(((outputs == targets) * (targets > 0)), (1, 2))
+    #     pixel_labeled = np.sum(targets > 0, (1, 2))
+    #     pixel_correct = np.sum(((outputs == targets) * (targets > 0)), (1, 2))
         
-        return (pixel_correct / pixel_labeled)
+    #     return (pixel_correct / pixel_labeled)
 
     def iou(self):
+        if self.outputs is None or self.targets is None:
+            raise Exception("Metrics Data is None!")
+
         outputs = np.asarray(self.outputs)
         targets = np.asarray(self.targets)
 
@@ -24,7 +35,26 @@ class Metrics:
         inter_sum = np.sum(inter, (1, 2))
         union_sum = np.sum(union, (1, 2))
 
-        return (inter_sum / union_sum)
+        self.global_inter += inter_sum
+        self.global_union += union_sum
+
+        if union_sum == 0:  # union_sum = 0
+            return 1.
+        else:
+            return (inter_sum / union_sum)
+
+    def global_iou(self):
+        if self.global_union == 0:
+            return 1.
+        else:
+            return (self.global_inter / self.global_union)
+
+    def metrics_all(self, metrics_list):
+        metrics_dict = {}
+        for metric in metrics_list:
+            method = getattr(self, metric)
+            metrics_dict[metric] = method()
+        return metrics_dict
 
 # class AverageMeter(object):
 #     """Computes and stores the average and current value"""

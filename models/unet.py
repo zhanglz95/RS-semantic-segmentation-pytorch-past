@@ -32,8 +32,7 @@ class UNet(nn.Module):
 		self.trans1 = self.upsample(16, 8)
 
 		self.conv_last = nn.Sequential(
-			nn.Conv2d(8, num_classes + 1, 3, 1, 1),
-			nn.LogSoftmax(dim=1)
+			nn.Conv2d(8, num_classes + 1, 3, 1, 1)
 			)
 
 		self.max_pool = nn.MaxPool2d(2)

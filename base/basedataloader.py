@@ -9,17 +9,16 @@ class BaseDataLoader(DataLoader):
     def __init__(self, dataset, batch_size, shuffle, num_workers, sampler=None):
         self.shuffle = shuffle
         self.dataset = dataset
-        self.nbr_examples = len(dataset)
         self.batch_size = batch_size
-        self.batch_sampler = None
         self.sampler = sampler
+        self.num_workers = num_workers
 
         self.init_kwargs = {
             'dataset': self.dataset, 
-            'batch_size':batch_size, 
+            'batch_size':self.batch_size, 
             'shuffle':self.shuffle, 
             'sampler':self.sampler, 
-            'batch_sampler':self.batch_sampler, 
+            'batch_sampler':None, 
             'num_workers':num_workers, 
             'collate_fn':None,
             'pin_memory':False,

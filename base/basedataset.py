@@ -46,10 +46,9 @@ class BaseDataSet(Dataset):
         # TODO add augmentation for data
         # Return numpy.ndarray Pair
         if self.augment:
-            for aug in self.augment_method.keys():
-                if self.augment_method[aug]:
-                    method = AUG[aug]
-                    pair = method(pair, **self.aug_kwargs[aug])
+            for aug in self.augment_method:
+                method = AUG[aug]
+                pair = method(pair, **self.aug_kwargs[aug])
         return pair
 
     def _load_data(self, index):

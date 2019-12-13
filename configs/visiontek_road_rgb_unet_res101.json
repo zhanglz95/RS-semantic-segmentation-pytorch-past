@@ -15,14 +15,8 @@
 
 		"augment": {
 			"applyAugment": true,
-			"augment_method": {
-				"HorizontalFlip": false,
-				"VerticalFlip": false,
-				"Translation": false,
-				"Rotation": false,
-				"Crop": false,
-				"Scale": true
-			},
+			"augment_method": ["Scale"],
+
 			"args": {
 				"HorizontalFlip": {},
 				"VerticalFlip": {},
@@ -48,14 +42,8 @@
 
 		"augment": {
 			"applyAugment": true,
-			"augment_method": {
-				"HorizontalFlip": false,
-				"VerticalFlip": false,
-				"Translation": false,
-				"Rotation": false,
-				"Crop": false,
-				"Scale": true
-			},
+			"augment_method": ["Scale"],
+
 			"args": {
 				"HorizontalFlip": {},
 				"VerticalFlip": {},
@@ -97,17 +85,15 @@
         "save_dir": "saved/", 
         "save_period": 10, 
         
-		"loss": "NLLLoss",
+		"loss": "MultiClassDiceLoss",
 		"optimizer": {
 			"type": "SGD",
 			"lr": 1e-1
 		},
 
-        "monitor": 
-        {
-            "mode": "MIN", 
-            "metric": "MEAN_IOU"
-        },
+		"metrics": ["iou"],
+
+        "val": true,
 
         "early_stop": 10,
         "log_per_iter": 10,
@@ -116,9 +102,7 @@
         "save_per_epochs": 1,
 
         "tensorboard": true,
-        "log_dir": "saved/runs",
+        "log_dir": "saved/runs"
         
-        "val": true,
-        "val_per_epoch": 1
     }
 }
