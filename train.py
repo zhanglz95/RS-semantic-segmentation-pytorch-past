@@ -4,7 +4,6 @@ import json
 import dataloader as D
 import models as M
 from utils import loss as L
-from utils import Logger
 
 from trainer import Trainer
 

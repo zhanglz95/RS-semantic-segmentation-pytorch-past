@@ -1,16 +1,13 @@
 import torch
 import torch.nn as nn
-
 class NLLLoss(nn.Module):
-	def __init__(self, weight=None, ignore_index=0, reduction='mean'):
+	def __init__(self):
 		super(NLLLoss, self).__init__()
-		self.loss =  nn.NLLLoss(weight=weight, ignore_index=ignore_index, reduction=reduction)
-		self.PREPROCESS = nn.LogSoftmax(dim=1)
-
+		self.PREPROCESS = nn.LogSoftmax(dim = 1)
+		self.Loss = nn.NLLLoss(ignore_index=0, reduction='mean')
 	def forward(self, output, target):
 		output = self.PREPROCESS(output)
-		loss = self.loss(output, target)
-		return loss
+		return self.Loss(output, target)
 
 class DiceLoss(nn.Module):
 	def __init__(self):
@@ -21,7 +18,7 @@ class DiceLoss(nn.Module):
 		output = self.PREPROCESS(output)
 		
 		N = target.size(0)
-		smooth = 0.
+		smooth = 1e-100
 
 		output_flat = output.view(N, -1)
 		target_flat = target.view(N, -1)
@@ -41,7 +38,7 @@ class MultiClassDiceLoss(nn.Module):
 	def forward(self, output, target, weights = None):
 		output = self.PREPROCESS(output)
 
-		smooth = 0.
+		smooth = 1e-100
 		target = torch.unsqueeze(target, 1)
 		one_hot_target = torch.zeros_like(output).scatter_(1, target, 1)
 
@@ -49,9 +46,11 @@ class MultiClassDiceLoss(nn.Module):
 		C = one_hot_target.shape[1]
 
 		if weights is None:
-			weights = torch.ones(1, C) * (1 / C)
+			weights = torch.ones(1, C) * (1 / (C - 1))
+			weights[0, 0] = 0  # background set to zero
 
 		weights = weights.t()
+		weights = weights.type_as(output)
 
 		output_flat = output.view(N, C, -1)
 		one_hot_target_flat = one_hot_target.view(N, C, -1)
@@ -62,6 +61,15 @@ class MultiClassDiceLoss(nn.Module):
 		loss = loss.mm(weights).sum() / N
 
 		return loss
+
+class NLL_DiceLoss(nn.Module):
+	def __init__(self):
+		super(NLL_DiceLoss, self).__init__()
+		self.NLLLoss = NLLLoss()
+		self.DiceLoss = MultiClassDiceLoss()
+
+	def forward(self, output, target):
+		return self.NLLLoss(output, target) + self.DiceLoss(output, target)
 
 if __name__ == "__main__":
 	output = torch.FloatTensor(

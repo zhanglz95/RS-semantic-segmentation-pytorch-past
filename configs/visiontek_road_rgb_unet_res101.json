@@ -3,79 +3,11 @@
 	"num_classes": 1,
 	"loader_name": "Visiontek_rgb_loader",
 
-	"train_loader": {
-		"data_dir": "./data/visiontek/road/train",
-		
-		"args": {
-			"batch_size": 1,
-			"shuffle": true,
-			"num_workers": 0,
-			"sampler": null
-		},
-
-		"augment": {
-			"applyAugment": true,
-			"augment_method": ["Scale"],
-
-			"args": {
-				"HorizontalFlip": {},
-				"VerticalFlip": {},
-				"Scale": {
-					"size": [512, 512]
-				},
-				"Translation": {
-					"factor": 0.2
-				},
-				"Rotation": {
-					"angle": 10
-				},
-				"Crop": {
-					"corner": [0, 0],
-					"size": [1024, 1024]
-				}
-			}
-		}
-	},
-	
-	"val_loader": {
-		"data_dir": "./data/visiontek/road/valid",
-
-		"augment": {
-			"applyAugment": true,
-			"augment_method": ["Scale"],
-
-			"args": {
-				"HorizontalFlip": {},
-				"VerticalFlip": {},
-				"Scale": {
-					"size": [512, 512]
-				},
-				"Translation": {
-					"factor": 0.2
-				},
-				"Rotation": {
-					"angle": 10
-				},
-				"Crop": {
-					"corner": [0, 0],
-					"size": [300, 300]
-				}
-			}
-		},
-
-		"args":{
-			"batch_size": 1,
-			"shuffle": false,
-			"num_workers": 0
-		}
-	},
-
-
 	"trainer":
     {
 		"name": "visiontek_road_rgb_unet_res101",
 
-		"use_gpu": false,
+		"use_gpu": true,
 
 		"cudnnBenchmarkFlag": true,
 
@@ -85,7 +17,7 @@
         "save_dir": "saved/", 
         "save_period": 10, 
         
-		"loss": "MultiClassDiceLoss",
+		"loss": "NLL_DiceLoss",
 		"optimizer": {
 			"type": "SGD",
 			"lr": 1e-1
@@ -95,14 +27,71 @@
 
         "val": true,
 
-        "early_stop": 10,
-        "log_per_iter": 10,
-        "val_per_epochs": 1,
-        "break_for_grad_vanish": 3,
-        "save_per_epochs": 1,
+        "val_per_epochs": 2,
+        "break_for_grad_vanish": 5,
+        "save_per_epochs": 2,
+        "loss_descend": 3,
 
         "tensorboard": true,
-        "log_dir": "saved/runs"
-        
-    }
+        "log_dir": "saved/runs"  
+    },
+
+	"train_loader": {
+		"data_dir": "./data/road/train",
+		
+		"args": {
+			"batch_size": 8,
+			"shuffle": true,
+			"num_workers": 8,
+			"sampler": null
+		},
+
+		"augment": {
+			"applyAugment": true,
+			"augment_method": ["HorizontalFlip", "VerticalFlip", "Rotation", "Crop", "Scale"],
+
+			"args": {
+				"HorizontalFlip": {
+					"probability": 0.5
+				},
+				"VerticalFlip": {
+					"probability": 0.5
+				},
+				"Translation": {
+					"probability": 0.5,
+					"factor": 0.8
+				},
+				"Rotation": {
+					"probability": 0.5
+				},
+				"Crop": {
+					"probability": 0.5
+				},
+				"Scale": {
+					"size": [1024, 1024]
+				}
+			}
+		}
+	},
+	
+	"val_loader": {
+		"data_dir": "./data/road/val",
+
+		"args":{
+			"batch_size": 8,
+			"shuffle": false,
+			"num_workers": 8
+		},
+
+		"augment": {
+			"applyAugment": true,
+			"augment_method": ["Scale"],
+
+			"args": {
+				"Scale": {
+					"size": [1024, 1024]
+				}
+			}
+		}
+	}
 }

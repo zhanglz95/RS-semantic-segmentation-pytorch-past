@@ -1,4 +1,5 @@
 import torch
+import torch.nn as nn
 import numpy as np
 
 class Metrics:
@@ -10,9 +11,12 @@ class Metrics:
         self.outputs = None
         self.targets = None
 
+        self.Softmax = nn.Softmax(dim = 1)
+
     def update_input(self, outputs, targets):
-        self.outputs = torch.argmax(outputs, axis=1)
-        self.targets = targets
+        outputs = self.Softmax(outputs)
+        self.outputs = torch.argmax(outputs, axis=1).cpu()
+        self.targets = targets.cpu()
 
     # def pixel_accuracy(self):
     #     outputs = np.asarray(self.outputs)
@@ -33,21 +37,15 @@ class Metrics:
         inter = (outputs == targets) & (targets != 0)
         union = (outputs != 0) | (targets != 0)
         inter_sum = np.sum(inter, (1, 2))
-        union_sum = np.sum(union, (1, 2))
+        union_sum = np.sum(union, (1, 2)) + np.spacing(1)
 
-        self.global_inter += inter_sum
-        self.global_union += union_sum
+        self.global_inter += inter_sum.sum()
+        self.global_union += union_sum.sum()
 
-        if union_sum == 0:  # union_sum = 0
-            return 1.
-        else:
-            return (inter_sum / union_sum)
+        return (inter_sum / union_sum).mean()
 
     def global_iou(self):
-        if self.global_union == 0:
-            return 1.
-        else:
-            return (self.global_inter / self.global_union)
+        return (self.global_inter / self.global_union)
 
     def metrics_all(self, metrics_list):
         metrics_dict = {}

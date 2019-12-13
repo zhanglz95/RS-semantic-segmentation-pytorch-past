@@ -1,7 +1,6 @@
 import torch
 import utils
 import json
-import tensorboardX as tb
 from pathlib import Path
 from datetime import datetime
 
@@ -24,9 +23,10 @@ class BaseTrainer:
         # init optim
         params = filter(lambda p:p.requires_grad, self.model.parameters())
         optim_config = self.config["optimizer"]
+        self.lr = optim_config["lr"]
         self.optimizer = create_object(utils.optim, optim_config["type"], 
                                         **{'params': params,
-                                            'lr':optim_config["lr"]})
+                                            'lr':self.lr})
        # init metrics
         self.improved = False
         self.best_loss = float("inf")
@@ -35,6 +35,7 @@ class BaseTrainer:
         self.loss_not_improved_count = 0
         self.iou_not_improved_count = 0
         self.break_for_grad_vanish = self.config['break_for_grad_vanish']
+        self.loss_descend = self.config['loss_descend']
         # self.moniter = config['moniter']
 
         # Set Device
@@ -62,9 +63,6 @@ class BaseTrainer:
         with open(config_save_path, 'w') as handle:
             json.dump(self.config, handle, indent=4, sort_keys=True)
 
-        writer_dir = Path(self.config['save_dir']) / self.config['name'] / str(start_time)
-        self.writer = tb.SummaryWriter(writer_dir)
-
         if self.config['resume_path']:
             self._resume_checkpoint(self.config['resume_path'])
 
@@ -73,6 +71,7 @@ class BaseTrainer:
             this_loss = self._train_epoch(epoch)
             if self.val and epoch % self.val_per_epochs == 0:
                 iou = self._val_epoch(epoch)
+                print(f"Global IoU:{iou}")
                 self.improved = iou > self.best_iou
                 if self.improved:
                     self.best_iou = iou
@@ -96,6 +95,10 @@ class BaseTrainer:
 
             if self.loss_not_improved_count > self.break_for_grad_vanish:
                 break
+            if self.loss_not_improved_count > self.loss_descend:
+                self.lr *= 0.1
+                for param_group in self.optimizer.param_groups:
+                    param_group['lr'] = self.lr
 
             # save checkpoint
             if epoch % self.save_per_epochs == 0:

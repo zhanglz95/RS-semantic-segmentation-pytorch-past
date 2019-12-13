@@ -1,10 +1,7 @@
 import torch
-import time
 import numpy as np
 from torchvision import transforms
-from tqdm import tqdm
 from base import BaseTrainer, DataPrefetcher
-from time import time
 from utils.metrics import Metrics
 
 class Trainer(BaseTrainer):
@@ -21,8 +18,6 @@ class Trainer(BaseTrainer):
 		cnt = 0
 
 		metrics = Metrics()
-		# tbar = tqdm(self.train_loader, ncols=150)
-		# for idx, data in enumerate(tbar, 0):
 		for idx, data in enumerate(self.train_loader, 0):
 			images, masks = data
 			images = images.to(self.device)
@@ -41,16 +36,12 @@ class Trainer(BaseTrainer):
 			total_loss += loss
 			cnt += 1
 
-			show_str = f"Training, epoch: {epoch}, Iter: {idx}, loss: {total_loss / cnt}"
+			show_str = f"Training, epoch: {epoch}, Iter: {idx}, lr: {self.lr}, loss: {total_loss / cnt}"
 			for key in seg_metrics:
 				this_str = f"{key}: {seg_metrics[key]}"
 				show_str += (", " + this_str)
 			print(show_str)
-
-
-			# tbar.set_description(f'\nTraining, epoch: {epoch}, Iteration: {idx} || ave_Loss: {total_loss / cnt}')
-
-
+			
 		average_loss = total_loss / cnt
 		return average_loss
 
@@ -61,18 +52,12 @@ class Trainer(BaseTrainer):
 
 		metrics = Metrics()
 
-		# tbar = tqdm(self.val_loader, ncols=150)
-		# for idx, data in enumerate(tbar, 0):
 		for idx, data in enumerate(self.val_loader, 0):
 			images, masks = data
 			images = images.to(self.device)
 			masks = masks.to(self.device)
 
 			outputs = self.model(images).detach()
-
-			# loss = self.loss(outputs, masks)
-			# total_loss += loss
-			# cnt += 1
 
 			# Metrics
 			metrics.update_input(outputs, masks)
@@ -84,8 +69,6 @@ class Trainer(BaseTrainer):
 				show_str += (", " + this_str)
 			print(show_str)
 
-			# tbar.set_description(f'\nValidation, epoch: {epoch} Iteration: {1+idx+epoch*len(self.train_loader):8d} || Loss: {total_loss/cnt:.3f} \
-								# || pixelAcc: {pixelAcc:.3f}')
 		global_iou = metrics.global_iou()
 
 		return global_iou

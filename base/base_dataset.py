@@ -4,7 +4,7 @@ from collections import namedtuple
 from PIL import Image
 import torch
 from torchvision import transforms as T
-from utils import AUG
+from utils import augmentation
 
 import numpy as np
 Pair = namedtuple('Pair', ['image', 'mask'])
@@ -47,7 +47,7 @@ class BaseDataSet(Dataset):
         # Return numpy.ndarray Pair
         if self.augment:
             for aug in self.augment_method:
-                method = AUG[aug]
+                method = getattr(augmentation, aug)
                 pair = method(pair, **self.aug_kwargs[aug])
         return pair
 
