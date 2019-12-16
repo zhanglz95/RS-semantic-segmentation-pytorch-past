@@ -1,0 +1,97 @@
+{
+	"model": "DinkNet34",
+	"num_classes": 1,
+	"loader_name": "Visiontek_rgb_loader",
+
+	"trainer":
+    {
+		"name": "visiontek_road_rgb_dinknet_res34",
+
+		"use_gpu": true,
+
+		"cudnnBenchmarkFlag": true,
+
+		"resume_path": null,
+
+        "epochs": 100,
+        "save_dir": "saved/", 
+        "save_period": 5, 
+        
+		"loss": "CE_DiceLoss",
+		"optimizer": {
+			"type": "Adam",
+			"lr": 1e-3
+		},
+
+		"metrics": ["iou"],
+
+        "val": true,
+
+        "val_per_epochs": 2,
+        "break_for_grad_vanish": 5,
+        "save_per_epochs": 2,
+        "lr_descend": 2,
+
+        "tensorboard": true,
+        "log_dir": "saved/runs"  
+    },
+
+	"train_loader": {
+		"data_dir": "./data/road/train",
+		
+		"args": {
+			"batch_size": 4,
+			"shuffle": true,
+			"num_workers": 4,
+			"sampler": null
+		},
+
+		"augment": {
+			"applyAugment": true,
+			"augment_method": ["HorizontalFlip", "VerticalFlip", "Rotation", "Crop", "Scale"],
+
+			"args": {
+				"HorizontalFlip": {
+					"probability": 0.5
+				},
+				"VerticalFlip": {
+					"probability": 0.5
+				},
+				"Translation": {
+					"probability": 0.5,
+					"factor": 0.8
+				},
+				"Rotation": {
+					"probability": 0.5
+				},
+				"Crop": {
+					"probability": 0.5
+				},
+				"Scale": {
+					"size": [1024, 1024]
+				}
+			}
+		}
+	},
+	
+	"val_loader": {
+		"data_dir": "./data/road/val",
+
+		"args":{
+			"batch_size": 4,
+			"shuffle": false,
+			"num_workers": 4
+		},
+
+		"augment": {
+			"applyAugment": true,
+			"augment_method": ["Scale"],
+
+			"args": {
+				"Scale": {
+					"size": [1024, 1024]
+				}
+			}
+		}
+	}
+}
