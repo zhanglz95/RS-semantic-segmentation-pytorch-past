@@ -1,13 +1,13 @@
 import torch
 import torch.nn as nn
-class NLLLoss(nn.Module):
+
+import numpy as np
+class CrossEntropyLoss(nn.Module):
 	def __init__(self):
-		super(NLLLoss, self).__init__()
-		self.PREPROCESS = nn.LogSoftmax(dim = 1)
-		self.Loss = nn.NLLLoss(ignore_index=0, reduction='mean')
+		super(CrossEntropyLoss, self).__init__()
+		self.Loss = nn.CrossEntropyLoss(ignore_index=-100, reduction='mean')
 	def forward(self, output, target):
-		output = self.PREPROCESS(output)
-		return self.Loss(output, target)
+		return self.Loss(output, target)	
 
 class DiceLoss(nn.Module):
 	def __init__(self):
@@ -49,27 +49,29 @@ class MultiClassDiceLoss(nn.Module):
 			weights = torch.ones(1, C) * (1 / (C - 1))
 			weights[0, 0] = 0  # background set to zero
 
-		weights = weights.t()
-		weights = weights.type_as(output)
-
+		weights = weights.t().type_as(output)
 		output_flat = output.view(N, C, -1)
 		one_hot_target_flat = one_hot_target.view(N, C, -1)
 
 		intersection = output_flat * one_hot_target_flat
 		loss = 1 - 2 * (intersection.sum(2) + smooth) / (output_flat.sum(2) + one_hot_target_flat.sum(2) + smooth)
 
-		loss = loss.mm(weights).sum() / N
+		loss = loss.mm(weights).mean()
 
 		return loss
 
-class NLL_DiceLoss(nn.Module):
+class CE_DiceLoss(nn.Module):
+	'''
+	CrossEntropyLoss + MultiClassDiceLoss
+	'''
 	def __init__(self):
-		super(NLL_DiceLoss, self).__init__()
-		self.NLLLoss = NLLLoss()
+		super(CE_DiceLoss, self).__init__()
+		self.CrossEntropyLoss = CrossEntropyLoss()
 		self.DiceLoss = MultiClassDiceLoss()
 
 	def forward(self, output, target):
-		return self.NLLLoss(output, target) + self.DiceLoss(output, target)
+		return self.CrossEntropyLoss(output, target) * 0.1 + self.DiceLoss(output, target)
+
 
 if __name__ == "__main__":
 	output = torch.FloatTensor(
@@ -85,32 +87,3 @@ if __name__ == "__main__":
 	LOSS = MultiClassDiceLoss()
 	loss = LOSS(output, target)
 	print(loss)
-
-# class dice_bce_loss(nn.Module):
-#	 def __init__(self, batch=True):
-#		 super(dice_bce_loss, self).__init__()
-#		 self.batch = batch
-#		 self.bce_loss = nn.BCELoss()
-		
-#	 def soft_dice_coeff(self, y_true, y_pred):
-#		 smooth = 0.0  # may change
-#		 if self.batch:
-#			 i = torch.sum(y_true)
-#			 j = torch.sum(y_pred)
-#			 intersection = torch.sum(y_true * y_pred)
-#		 else:
-#			 i = y_true.sum(1).sum(1).sum(1)
-#			 j = y_pred.sum(1).sum(1).sum(1)
-#			 intersection = (y_true * y_pred).sum(1).sum(1).sum(1)
-#		 score = (2. * intersection + smooth) / (i + j + smooth)
-#		 #score = (intersection + smooth) / (i + j - intersection + smooth)#iou
-#		 return score.mean()
-
-#	 def soft_dice_loss(self, y_true, y_pred):
-#		 loss = 1 - self.soft_dice_coeff(y_true, y_pred)
-#		 return loss
-		
-#	 def __call__(self, y_true, y_pred):
-#		 a =  self.bce_loss(y_pred, y_true)
-#		 b =  self.soft_dice_loss(y_true, y_pred)
-#		 return a + b

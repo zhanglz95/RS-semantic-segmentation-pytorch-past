@@ -15,12 +15,12 @@
 
         "epochs": 100,
         "save_dir": "saved/", 
-        "save_period": 10, 
+        "save_period": 5, 
         
-		"loss": "NLL_DiceLoss",
+		"loss": "CE_DiceLoss",
 		"optimizer": {
-			"type": "SGD",
-			"lr": 1e-1
+			"type": "Adam",
+			"lr": 1e-3
 		},
 
 		"metrics": ["iou"],
@@ -30,7 +30,7 @@
         "val_per_epochs": 2,
         "break_for_grad_vanish": 5,
         "save_per_epochs": 2,
-        "loss_descend": 3,
+        "lr_descend": 2,
 
         "tensorboard": true,
         "log_dir": "saved/runs"  

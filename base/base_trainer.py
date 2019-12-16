@@ -35,7 +35,7 @@ class BaseTrainer:
         self.loss_not_improved_count = 0
         self.iou_not_improved_count = 0
         self.break_for_grad_vanish = self.config['break_for_grad_vanish']
-        self.loss_descend = self.config['loss_descend']
+        self.lr_descend = self.config['lr_descend']
         # self.moniter = config['moniter']
 
         # Set Device
@@ -95,7 +95,7 @@ class BaseTrainer:
 
             if self.loss_not_improved_count > self.break_for_grad_vanish:
                 break
-            if self.loss_not_improved_count > self.loss_descend:
+            if self.loss_not_improved_count > self.lr_descend:
                 self.lr *= 0.1
                 for param_group in self.optimizer.param_groups:
                     param_group['lr'] = self.lr
