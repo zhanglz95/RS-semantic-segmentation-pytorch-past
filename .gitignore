@@ -3,3 +3,5 @@ data/
 saved/
 *.pth
 __pycache__
+*.jpg
+*.png
