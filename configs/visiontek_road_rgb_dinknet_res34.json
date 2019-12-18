@@ -13,11 +13,12 @@
 
 		"resume_path": null,
 
-        "epochs": 100,
+        "epochs": 500,
         "save_dir": "saved/", 
+    	"Message": "toBatchLoss",
         "save_period": 5, 
         
-		"loss": "CE_DiceLoss",
+		"loss": "CE_BatchDiceLoss",
 		"optimizer": {
 			"type": "Adam",
 			"lr": 1e-3
@@ -48,7 +49,7 @@
 
 		"augment": {
 			"applyAugment": true,
-			"augment_method": ["HorizontalFlip", "VerticalFlip", "Rotation", "Crop", "Scale"],
+			"augment_method": ["HorizontalFlip", "VerticalFlip", "Scale"],
 
 			"args": {
 				"HorizontalFlip": {

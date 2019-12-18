@@ -10,7 +10,7 @@ if __name__ == "__main__":
 	model = getattr(M, "DinkNet34")()
 	device = torch.device("cuda:0")
 
-	dictPath = Path("./saved/visiontek_road_rgb_dinknet_res34/12-16-17:54/-DinkNet34-best_iou.pth")
+	dictPath = Path("./saved/visiontek_road_rgb_dinknet_res34/12-16-21:57/DinkNet34-best_iou.pth")
 	model.load_state_dict(torch.load(dictPath))
 	model.to(device)
 

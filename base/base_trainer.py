@@ -62,6 +62,8 @@ class BaseTrainer:
         config_save_path = self.checkpoints_path/"config.json"
         with open(config_save_path, 'w') as handle:
             json.dump(self.config, handle, indent=4, sort_keys=True)
+        with open(self.checkpoints_path / "message.txt", "w") as handle:
+            handle.writelines(self.config["Message"])
 
         if self.config['resume_path']:
             self._resume_checkpoint(self.config['resume_path'])
@@ -81,6 +83,10 @@ class BaseTrainer:
                     self.iou_not_improved_count += self.val_per_epochs
 
                 if self.iou_not_improved_count > self.break_for_grad_vanish * 2:
+                    with open(self.checkpoints_path / "message.txt", "w") as handle:
+                        handle.writelines("break for valid iou best.")
+                        handle.writelines(f"break in epoch {epoch}.")
+                        handle.writelines(f"best_iou: {self.best_iou}")
                     break
             # results = self._val_epoch(epoch)
 
@@ -94,6 +100,17 @@ class BaseTrainer:
                 self.loss_not_improved_count += 1
 
             if self.loss_not_improved_count > self.break_for_grad_vanish:
+                iou = self._val_epoch(epoch)
+                self.improved = iou > self.best_iou
+                if self.improved:
+                    self.best_iou = iou
+                    self.iou_not_improved_count = 0
+                    self._save_checkpoints("best_iou")
+
+                with open(self.checkpoints_path / "message.txt", "w") as handle:
+                    handle.writelines("break for train loss best.")
+                    handle.writelines(f"break in epoch {epoch}.")
+                    handle.writelines(f"best_iou: {self.best_iou}")
                 break
             if self.loss_not_improved_count > self.lr_descend:
                 self.lr *= 0.1

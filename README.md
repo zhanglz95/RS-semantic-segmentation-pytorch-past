@@ -26,9 +26,9 @@ This repo aims at implementing multiple semantic segmentation models on Pytorch(
 
 ## Todo
 - [ ] Deeplab v3+
-- [ ] Unet
+- [X] Unet
 - [ ] Linknet
-- [ ] Dinknet
+- [X] Dinknet
 - [ ] RGBI images
 
 ## Code structure
@@ -45,23 +45,33 @@ The code structure is based on [pytorch-template](https://github.com/victoresque
   │   └── xxx.json    
   │
   ├── base/ - abstract base classes
-  │   ├── base_data_loader.py
-  │   ├── base_model.py
+  │   ├── __init__.py  
+  │   ├── base_dataloader.py
   │   ├── base_dataset.py - All the data augmentations are implemented here
   │   └── base_trainer.py
   │
   ├── dataloader/ - loading the data for different segmentation datasets
+  │   ├── __init__.py 
+  │   ├── xxxloader.py
+  │   ├── xxxloader.py
+  │   └── xxxloader.py
   │
   ├── models/ - contains semantic segmentation models
+  │   ├── __init__.py
+  │   ├── xxNet.py
+  │   ├── xxNet.py
+  │   └── xxNet.py
   │
   ├── saved/
-  │   ├── runs/ - trained models are saved here
-  │   └── log/ - default logdir for tensorboard and logging output
+  │   └── training_name/ - training name for different training config
+  │       └── Time/ - Different time when start training
   │  
   └── utils/ - small utility functions
-      ├── losses.py - losses used in training the model
+      ├── __init__.py
+      ├── loss.py - losses used in training the model
       ├── metrics.py - evaluation metrics used
-      └── lr_scheduler - learning rate schedulers 
+      ├── optim.py - load torch.optim
+      └── augmentation.py - augmentation utils
   ```
 
 ## Acknowledgement
@@ -71,6 +81,7 @@ The code structure is based on [pytorch-template](https://github.com/victoresque
 
 [awesome-semantic-segmentation-pytorch](https://github.com/Tramac/awesome-semantic-segmentation-pytorch)
 
+[DeepGlobe-Road-Extraction-Challenge](https://github.com/zlkanata/DeepGlobe-Road-Extraction-Challenge)
 
 [python-image]: https://img.shields.io/badge/Python-3.x-ff69b4.svg
 [python-url]: https://www.python.org/

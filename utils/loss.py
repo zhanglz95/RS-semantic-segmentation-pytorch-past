@@ -112,12 +112,12 @@ class CE_DiceLoss(nn.Module):
 	def forward(self, output, target):
 		return self.CrossEntropyLoss(output, target) + self.DiceLoss(output, target)
 
-class CE_BatchDiceLoss(nn.Module)
+class CE_BatchDiceLoss(nn.Module):
 	'''
 	CrossEntropyLoss + MultiClassBatchDiceLoss
 	'''
 	def __init__(self):
-		super(CE_DiceLoss, self).__init__()
+		super(CE_BatchDiceLoss, self).__init__()
 		self.CrossEntropyLoss = CrossEntropyLoss()
 		self.DiceLoss = MultiClassBatchDiceLoss()
 
