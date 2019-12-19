@@ -1,14 +1,31 @@
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 
 import numpy as np
 class CrossEntropyLoss(nn.Module):
-	def __init__(self, weight=None):
+	def __init__(self):
 		super(CrossEntropyLoss, self).__init__()
+	def forward(self, output, target, weight=None):
+		# if weight is None:
+			# # 初始化权重，标签频率的倒数比, 最终结果：yi = 1 / (1 + 累加(xi / xj(j != i)))
+			# C = output.shape[1]
+			# freq = torch.ones(C)
+			# for _c in range(C):
+			# 	freq[_c] = torch.sum(target==_c)
+			# weight = torch.ones(C)
+			# for _c in range(C):
+			# 	_sum = 0
+			# 	for _cc in range(C):
+			# 		if _cc == _c:
+			# 			continue
+			# 		_sum += (freq[_c] / freq[_cc])
+			# 	weight[_c] = 1 / (_sum + 1)
+			# print(weight)
 
-		self.Loss = nn.CrossEntropyLoss(weight=weight, ignore_index=-100, reduction='mean')
-	def forward(self, output, target):
-		return self.Loss(output, target)	
+		# weight = weight.type_as(output)
+
+		return F.cross_entropy(output, target, weight=weight, reduction='mean')
 
 class DiceLoss(nn.Module):
 	def __init__(self):
@@ -19,13 +36,13 @@ class DiceLoss(nn.Module):
 		output = self.PREPROCESS(output)
 		
 		N = target.size(0)
-		smooth = 1e-100
+		smooth = 1e-10
 
 		output_flat = output.view(N, -1)
 		target_flat = target.view(N, -1)
 
 		intersection = output_flat * target_flat
-		loss = 2 * (intersection.sum(1) + smooth) / (output_flat.sum(1) + target_flat.sum(1) + smooth)
+		loss = 2 * (intersection.sum(1)) / (output_flat.sum(1) + target_flat.sum(1) + smooth)
 		loss = 1 - loss.sum() / N
 
 		return loss
@@ -136,6 +153,6 @@ if __name__ == "__main__":
 		[[[0, 1, 0]],
 		 [[1, 1, 1]]])
 
-	LOSS = MultiClassBatchDiceLoss()
+	LOSS = CE_BatchDiceLoss()
 	loss = LOSS(output, target)
 	print(loss)
