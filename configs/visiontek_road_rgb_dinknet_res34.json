@@ -11,7 +11,7 @@
 
 		"cudnnBenchmarkFlag": true,
 
-		"resume_path": null,
+		"resume_path": "./saved/visiontek_road_rgb_dinknet_res34/12-18-11:08/-DinkNet34-best_loss.pth",
 
         "epochs": 500,
         "save_dir": "saved/", 
@@ -21,7 +21,7 @@
 		"loss": "CE_BatchDiceLoss",
 		"optimizer": {
 			"type": "Adam",
-			"lr": 1e-3
+			"lr": 1e-5
 		},
 
 		"metrics": ["iou"],
