@@ -70,15 +70,15 @@ class BaseTrainer:
     def train(self):
         for epoch in range(self.start_epoch, self.epochs):
             this_loss = self._train_epoch(epoch)
+            validated = False
             if self.val and epoch % self.val_per_epochs == 0:
+                validated = True
                 iou = self._val_epoch(epoch)
                 print(f"Global IoU:{iou}")
                 self.improved = iou > self.best_iou
                 if self.improved:
                     self.best_iou = iou
                     self._save_checkpoints("best_iou")
-
-            # results = self._val_epoch(epoch)
 
             # Check if this is the best model
             self.improved = this_loss < self.best_loss
@@ -86,22 +86,25 @@ class BaseTrainer:
                 self.best_loss = this_loss
                 self.loss_not_improved_count = 0
                 self._save_checkpoints("best_loss")
-                iou = self._val_epoch(epoch)
-                print(f"Global IoU:{iou}")
-                self.improved = iou > self.best_iou
-                if self.improved:
-                    self.best_iou = iou
-                    self._save_checkpoints("best_iou")
+
+                if self.val and not validated:
+                    iou = self._val_epoch(epoch)
+                    print(f"Global IoU:{iou}")
+                    self.improved = iou > self.best_iou
+                    if self.improved:
+                        self.best_iou = iou
+                        self._save_checkpoints("best_iou")
             else:
                 self.loss_not_improved_count += 1
 
             if self.loss_not_improved_count > self.break_for_grad_vanish:
-                iou = self._val_epoch(epoch)
-                print(f"Global IoU:{iou}")
-                self.improved = iou > self.best_iou
-                if self.improved:
-                    self.best_iou = iou
-                    self._save_checkpoints("best_iou")
+                if self.val and not validated:
+                    iou = self._val_epoch(epoch)
+                    print(f"Global IoU:{iou}")
+                    self.improved = iou > self.best_iou
+                    if self.improved:
+                        self.best_iou = iou
+                        self._save_checkpoints("best_iou")
 
                 with open(self.checkpoints_path / "message.txt", "w") as handle:
                     handle.write("break for train loss best.\n")

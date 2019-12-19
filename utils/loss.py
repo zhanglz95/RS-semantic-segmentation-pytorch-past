@@ -3,9 +3,10 @@ import torch.nn as nn
 
 import numpy as np
 class CrossEntropyLoss(nn.Module):
-	def __init__(self):
+	def __init__(self, weight=None):
 		super(CrossEntropyLoss, self).__init__()
-		self.Loss = nn.CrossEntropyLoss(ignore_index=-100, reduction='mean')
+
+		self.Loss = nn.CrossEntropyLoss(weight=weight, ignore_index=-100, reduction='mean')
 	def forward(self, output, target):
 		return self.Loss(output, target)	
 
@@ -55,7 +56,6 @@ class MultiClassDiceLoss(nn.Module):
 		one_hot_target_flat = one_hot_target.view(N, C, -1)
 
 		intersection = output_flat * one_hot_target_flat
-		print(intersection)
 
 		loss = 1 - 2 * (intersection.sum(2)) / (output_flat.sum(2) + one_hot_target_flat.sum(2) + smooth)
 
