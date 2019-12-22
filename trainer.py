@@ -36,6 +36,9 @@ class Trainer(BaseTrainer):
 			total_loss += loss
 			cnt += 1
 
+			if self.tb_writer:
+				self.tb_writer.add_scalars("scalar/loss", {"loss": total_loss / cnt, "lr": self.lr, **seg_metrics})
+
 			show_str = f"Training, epoch: {epoch}, Iter: {idx}, lr: {self.lr}, loss: {total_loss / cnt}"
 			for key in seg_metrics:
 				this_str = f"{key}: {seg_metrics[key]}"

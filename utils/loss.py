@@ -61,7 +61,7 @@ class MultiClassDiceLoss(nn.Module):
 
 		loss *= weights
 
-		loss = loss.sum() / (N - 1)
+		loss = loss.sum() / N
 
 		return loss
 
@@ -94,8 +94,9 @@ class MultiClassBatchDiceLoss(nn.Module):
 
 		intersection = output_flat * one_hot_target_flat
 
+
 		loss = 1 - 2 * (intersection.sum()) / (output_flat.sum() + one_hot_target_flat.sum() + smooth)
-		loss /= (N - 1)
+		loss /= N
 
 		return loss
 

@@ -3,6 +3,7 @@ import utils
 import json
 from pathlib import Path
 from datetime import datetime
+from tensorboardX import SummaryWriter
 
 def create_object(module, name, **args):
     return getattr(module, name)(**args)
@@ -36,7 +37,6 @@ class BaseTrainer:
         self.iou_not_improved_count = 0
         self.break_for_grad_vanish = self.config['break_for_grad_vanish']
         self.lr_descend = self.config['lr_descend']
-        # self.moniter = config['moniter']
 
         # Set Device
         if self.config["use_gpu"]:
@@ -67,6 +67,11 @@ class BaseTrainer:
 
         if self.config['resume_path']:
             self._resume_checkpoint(self.config['resume_path'])
+
+        if self.config['tensorboard']:
+            self.tb_writer = SummaryWriter(log_dir=self.checkpoints_path)
+        else:
+            self.tb_writer = None
 
     def train(self):
         for epoch in range(self.start_epoch, self.epochs):
@@ -120,6 +125,7 @@ class BaseTrainer:
             # save checkpoint
             if epoch % self.save_per_epochs == 0:
                 self._save_checkpoints(epoch)
+        self.tb_writer.close()
 
 
 
