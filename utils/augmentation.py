@@ -74,7 +74,7 @@ def Rotation(pair, probability):
     '''
     if random.random() > probability:
         return pair
-    angle = random.randint(0, 360)
+    angle = random.randint(1, 3) * 90
     image = pair.image.rotate(angle)
     mask = pair.mask.rotate(angle)
 

@@ -9,9 +9,9 @@ def create_object(module, name, **args):
     return getattr(module, name)(**args)
 
 class BaseTrainer:
-    def __init__(self, config, model, train_loader, val_loader=None):
+    def __init__(self, configs, model, train_loader, val_loader=None):
         self.model = model
-        self.config = config
+        self.config = configs["trainer"]
         # init iter args
         self.start_epoch = 1
         self.epochs = self.config['epochs']
@@ -34,7 +34,6 @@ class BaseTrainer:
         self.best_iou = 0
 
         self.loss_not_improved_count = 0
-        self.iou_not_improved_count = 0
         self.break_for_grad_vanish = self.config['break_for_grad_vanish']
         self.lr_descend = self.config['lr_descend']
 
@@ -61,9 +60,9 @@ class BaseTrainer:
             self.checkpoints_path.mkdir(parents=True)
         config_save_path = self.checkpoints_path/"config.json"
         with open(config_save_path, 'w') as handle:
-            json.dump(self.config, handle, indent=4, sort_keys=True)
+            json.dump(configs, handle, indent=4, sort_keys=True)
         with open(self.checkpoints_path / "message.txt", "w") as handle:
-            handle.writelines(self.config["Message"])
+            handle.write(self.config["Message"] + "\n")
 
         if self.config['resume_path']:
             self._resume_checkpoint(self.config['resume_path'])
@@ -76,24 +75,15 @@ class BaseTrainer:
     def train(self):
         for epoch in range(self.start_epoch, self.epochs):
             this_loss = self._train_epoch(epoch)
+            validated = False
             if self.val and epoch % self.val_per_epochs == 0:
+                validated = True
                 iou = self._val_epoch(epoch)
                 print(f"Global IoU:{iou}")
                 self.improved = iou > self.best_iou
                 if self.improved:
                     self.best_iou = iou
-                    self.iou_not_improved_count = 0
                     self._save_checkpoints("best_iou")
-                else:
-                    self.iou_not_improved_count += self.val_per_epochs
-
-                if self.iou_not_improved_count > self.break_for_grad_vanish * 2:
-                    with open(self.checkpoints_path / "message.txt", "w") as handle:
-                        handle.writelines("break for valid iou best.")
-                        handle.writelines(f"break in epoch {epoch}.")
-                        handle.writelines(f"best_iou: {self.best_iou}")
-                    break
-            # results = self._val_epoch(epoch)
 
             # Check if this is the best model
             self.improved = this_loss < self.best_loss
@@ -101,21 +91,31 @@ class BaseTrainer:
                 self.best_loss = this_loss
                 self.loss_not_improved_count = 0
                 self._save_checkpoints("best_loss")
+
+                if self.val and not validated:
+                    iou = self._val_epoch(epoch)
+                    print(f"Global IoU:{iou}")
+                    self.improved = iou > self.best_iou
+                    if self.improved:
+                        self.best_iou = iou
+                        self._save_checkpoints("best_iou")
             else:
                 self.loss_not_improved_count += 1
 
             if self.loss_not_improved_count > self.break_for_grad_vanish:
-                iou = self._val_epoch(epoch)
-                self.improved = iou > self.best_iou
-                if self.improved:
-                    self.best_iou = iou
-                    self.iou_not_improved_count = 0
-                    self._save_checkpoints("best_iou")
+                if self.val and not validated:
+                    iou = self._val_epoch(epoch)
+                    print(f"Global IoU:{iou}")
+                    self.improved = iou > self.best_iou
+                    if self.improved:
+                        self.best_iou = iou
+                        self._save_checkpoints("best_iou")
 
                 with open(self.checkpoints_path / "message.txt", "w") as handle:
-                    handle.writelines("break for train loss best.")
-                    handle.writelines(f"break in epoch {epoch}.")
-                    handle.writelines(f"best_iou: {self.best_iou}")
+                    handle.write("break for train loss best.\n")
+                    handle.write(f"break in epoch {epoch}.\n")
+                    handle.write(f"best_iou: {self.best_iou}\n")
+                    handle.write(f"best_loss: {self.best_loss}\n")
                 break
             if self.loss_not_improved_count > self.lr_descend:
                 self.lr *= 0.1
@@ -135,7 +135,7 @@ class BaseTrainer:
         raise NotImplementedError
 
     def _save_checkpoints(self, name):
-        filename = Path(self.checkpoints_path)/f'-{self.model.__class__.__name__}-{name}.pth'
+        filename = Path(self.checkpoints_path)/f'{self.model.__class__.__name__}-{name}.pth'
         torch.save(self.model.state_dict(), filename)
 
     def _resume_checkpoint(self, resume_path):

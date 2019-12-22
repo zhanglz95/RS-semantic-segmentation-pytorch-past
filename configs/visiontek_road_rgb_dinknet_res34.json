@@ -15,7 +15,7 @@
 
         "epochs": 500,
         "save_dir": "saved/", 
-    	"Message": "toBatchLoss",
+    	"Message": "add augment",
         "save_period": 5, 
         
 		"loss": "CE_BatchDiceLoss",
@@ -31,6 +31,9 @@
         "val_per_epochs": 2,
         "break_for_grad_vanish": 3,
         "save_per_epochs": 2,
+        "val_per_epochs": 5,
+        "break_for_grad_vanish": 5,
+        "save_per_epochs": 5,
         "lr_descend": 2,
 
         "tensorboard": true,
@@ -49,7 +52,7 @@
 
 		"augment": {
 			"applyAugment": true,
-			"augment_method": ["HorizontalFlip", "VerticalFlip", "Scale"],
+			"augment_method": ["HorizontalFlip", "VerticalFlip", "Rotation", "Crop", "Scale"],
 
 			"args": {
 				"HorizontalFlip": {
@@ -60,7 +63,7 @@
 				},
 				"Translation": {
 					"probability": 0.5,
-					"factor": 0.8
+					"factor": 0.2
 				},
 				"Rotation": {
 					"probability": 0.5

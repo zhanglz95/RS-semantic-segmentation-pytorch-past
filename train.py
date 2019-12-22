@@ -22,11 +22,9 @@ def main():
 	# initial model
 	num_classes = configs["num_classes"]
 	model = getattr(M, configs["model"])(num_classes = num_classes)
-	# get trainer configs
-	trainer_configs = configs["trainer"]
 
 	trainer = Trainer(
-		trainer_configs, 
+		configs, 
 		model, 
 		train_loader, 
 		val_loader
