@@ -27,7 +27,7 @@ class Trainer(BaseTrainer):
 			outputs = self.model(images)
 			# Metrics
 			metrics.update_input(outputs, masks)
-			seg_metrics = metrics.metrics_all(self.config["metrics"])
+			seg_metrics = metrics.get_metrics(self.config["batch_metrics"])
 
 			self.optimizer.zero_grad()
 			loss = self.loss(outputs, masks)
@@ -77,7 +77,7 @@ class Trainer(BaseTrainer):
 
 			# Metrics
 			metrics.update_input(outputs, masks)
-			seg_metrics = metrics.metrics_all(self.config["metrics"])
+			seg_metrics = metrics.get_metrics(self.config["batch_metrics"])
 
 			if idx % self.log_per_iter == 0:
 				show_str = f"Validation, epoch: {epoch}, Iter: {idx}"
@@ -86,8 +86,8 @@ class Trainer(BaseTrainer):
 					show_str += (", " + this_str)
 				print(show_str)
 
-		global_iou = metrics.global_iou()
+		global_metrics = metrics.get_metrics(self.config["global_metrics"])
 		if self.tb_writer:
-			self.tb_writer.add_scalars("Validation", {"global_iou": global_iou}, epoch)
+			self.tb_writer.add_scalars("Validation", {**global_metrics}, epoch)
 
 		return global_iou
