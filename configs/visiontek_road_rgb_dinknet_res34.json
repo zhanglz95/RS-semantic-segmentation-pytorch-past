@@ -16,7 +16,6 @@
         "epochs": 500,
         "save_dir": "saved/", 
     	"Message": "remove crop",
-        "save_period": 5, 
         
 		"loss": "CE_BatchDiceLoss",
 		"optimizer": {
@@ -35,9 +34,10 @@
         "break_for_grad_vanish": 5,
         "save_per_epochs": 5,
         "lr_descend": 2,
+        "log_per_iter": 10,
 
         "tensorboard": true,
-        "log_dir": "saved/runs"  
+        "log_dir": "saved/runs" 
     },
 
 	"train_loader": {

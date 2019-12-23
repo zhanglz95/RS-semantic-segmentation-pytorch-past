@@ -36,25 +36,27 @@ class Trainer(BaseTrainer):
 
 			total_loss += loss
 			cnt += 1
-			if self.tb_writer:
-				self.tb_writer.add_scalars("scalars/Training", {"loss": total_loss / cnt, "lr": self.lr, **seg_metrics}, self.total_iters * epoch + idx)
-				start = time.time()
-				img_rgb = images[0]
-				gt_rgb = label2rgb(tensor2numpy(masks[0])).type_as(img_rgb)
-				pre_rgb = label2rgb(tensor2numpy(tensor2mask(outputs[0]))).type_as(img_rgb)
 
-				print(time.time() - start)
-				self.tb_writer.add_image("Images/Training", utils.make_grid([img_rgb, gt_rgb, pre_rgb]), self.total_iters * epoch + idx)
+			if idx % self.log_per_iter == 0:
+				if self.tb_writer:
 
-				# 不同步！
-				# self.tb_writer.add_image("Training/GT", label2rgb(tensor2numpy(masks[0])), self.total_iters * epoch + idx)
-				# self.tb_writer.add_image("Training/Pre", label2rgb(tensor2numpy(tensor2mask(outputs[0]))), self.total_iters * epoch + idx)
-				# self.tb_writer.add_image("Training/image", images[0], self.total_iters * epoch + idx)
-			show_str = f"Training, epoch: {epoch}, Iter: {idx}, lr: {self.lr}, loss: {total_loss / cnt}"
-			for key in seg_metrics:
-				this_str = f"{key}: {seg_metrics[key]}"
-				show_str += (", " + this_str)
-			print(show_str)
+					self.tb_writer.add_scalars("Training", {"loss": total_loss / cnt, "lr": self.lr, **seg_metrics}, self.total_iters * epoch + idx)
+
+					img_rgb = images[0]
+					gt_rgb = label2rgb(tensor2numpy(masks[0])).type_as(img_rgb)
+					pre_rgb = label2rgb(tensor2numpy(tensor2mask(outputs[0]))).type_as(img_rgb)
+
+					self.tb_writer.add_image("Training/train_images", utils.make_grid([img_rgb, gt_rgb, pre_rgb]), self.total_iters * epoch + idx)
+
+					# 不同步！
+					# self.tb_writer.add_image("Training/GT", label2rgb(tensor2numpy(masks[0])), self.total_iters * epoch + idx)
+					# self.tb_writer.add_image("Training/Pre", label2rgb(tensor2numpy(tensor2mask(outputs[0]))), self.total_iters * epoch + idx)
+					# self.tb_writer.add_image("Training/image", images[0], self.total_iters * epoch + idx)
+				show_str = f"Training, epoch: {epoch}, Iter: {idx}, lr: {self.lr}, loss: {total_loss / cnt}"
+				for key in seg_metrics:
+					this_str = f"{key}: {seg_metrics[key]}"
+					show_str += (", " + this_str)
+				print(show_str)
 			
 		average_loss = total_loss / cnt
 		return average_loss
@@ -77,20 +79,15 @@ class Trainer(BaseTrainer):
 			metrics.update_input(outputs, masks)
 			seg_metrics = metrics.metrics_all(self.config["metrics"])
 
-			if self.tb_writer:
-				self.tb_writer.add_scalars("scalars/Validation", {**seg_metrics}, self.total_iters * epoch + idx)
-				img_rgb = images[0]
-				gt_rgb = label2rgb(tensor2numpy(masks[0])).type_as(img_rgb)
-				pre_rgb = label2rgb(tensor2numpy(tensor2mask(outputs[0]))).type_as(img_rgb)
-
-				self.tb_writer.add_image("Images/Validation", utils.make_grid([img_rgb, gt_rgb, pre_rgb]), self.total_iters * epoch + idx)
-
-			show_str = f"Validation, epoch: {epoch}, Iter: {idx}"
-			for key in seg_metrics:
-				this_str = f"{key}: {seg_metrics[key]}"
-				show_str += (", " + this_str)
-			print(show_str)
+			if idx % self.log_per_iter == 0:
+				show_str = f"Validation, epoch: {epoch}, Iter: {idx}"
+				for key in seg_metrics:
+					this_str = f"{key}: {seg_metrics[key]}"
+					show_str += (", " + this_str)
+				print(show_str)
 
 		global_iou = metrics.global_iou()
+		if self.tb_writer:
+			self.tb_writer.add_scalars("Validation", {"global_iou": global_iou}, epoch)
 
 		return global_iou

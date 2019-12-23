@@ -20,6 +20,8 @@ class BaseTrainer:
         self.val = self.config['val']
         self.val_loader = val_loader
         self.val_per_epochs = self.config['val_per_epochs']
+
+        self.log_per_iter = self.config['log_per_iter']
         
         self.loss = create_object(utils.loss, self.config['loss'])
         # init optim
