@@ -15,11 +15,11 @@
 
         "epochs": 500,
         "save_dir": "saved/", 
-    	"Message": "base benchmark",
+    	"Message": "SGD",
         
 		"loss": "CE_BatchDiceLoss",
 		"optimizer": {
-			"type": "Adam",
+			"type": "SGD",
 			"lr": 1e-3
 		},
 

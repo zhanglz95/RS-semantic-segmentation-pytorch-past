@@ -15,7 +15,7 @@
 
         "epochs": 500,
         "save_dir": "saved/", 
-    	"Message": "base benchmark",
+    	"Message": "add Rotation augment",
         
 		"loss": "CE_BatchDiceLoss",
 		"optimizer": {
@@ -50,7 +50,7 @@
 
 		"augment": {
 			"applyAugment": true,
-			"augment_method": ["HorizontalFlip", "VerticalFlip", "Rotation", "Scale"],
+			"augment_method": ["HorizontalFlip", "VerticalFlip", "Rotation", "Crop", "Scale"],
 
 			"args": {
 				"HorizontalFlip": {

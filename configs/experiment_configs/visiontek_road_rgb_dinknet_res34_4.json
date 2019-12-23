@@ -15,9 +15,9 @@
 
         "epochs": 500,
         "save_dir": "saved/", 
-    	"Message": "base benchmark",
+    	"Message": "MultiClassDiceLoss",
         
-		"loss": "CE_BatchDiceLoss",
+		"loss": "MultiClassDiceLoss",
 		"optimizer": {
 			"type": "Adam",
 			"lr": 1e-3

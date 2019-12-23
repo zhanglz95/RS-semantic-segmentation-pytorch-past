@@ -15,12 +15,12 @@
 
         "epochs": 500,
         "save_dir": "saved/", 
-    	"Message": "base benchmark",
+    	"Message": "lr 1e-2",
         
 		"loss": "CE_BatchDiceLoss",
 		"optimizer": {
 			"type": "Adam",
-			"lr": 1e-3
+			"lr": 1e-2
 		},
 
 		"batch_metrics": ["batch_iou", "batch_recall", "batch_precision"],

@@ -1,11 +1,11 @@
 {
-	"model": "DinkNet34",
+	"model": "UNet",
 	"num_classes": 1,
 	"loader_name": "Visiontek_rgb_loader",
 
 	"trainer":
     {
-		"name": "visiontek_road_rgb_dinknet_res34",
+		"name": "visiontek_road_rgb_unet",
 
 		"use_gpu": true,
 
@@ -15,7 +15,7 @@
 
         "epochs": 500,
         "save_dir": "saved/", 
-    	"Message": "base benchmark",
+    	"Message": "unet base benchmark",
         
 		"loss": "CE_BatchDiceLoss",
 		"optimizer": {
