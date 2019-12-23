@@ -90,4 +90,4 @@ class Trainer(BaseTrainer):
 		if self.tb_writer:
 			self.tb_writer.add_scalars("Validation", {**global_metrics}, epoch)
 
-		return global_iou
+		return global_metrics

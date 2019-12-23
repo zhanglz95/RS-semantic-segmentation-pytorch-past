@@ -81,8 +81,9 @@ class BaseTrainer:
             validated = False
             if self.val and epoch % self.val_per_epochs == 0:
                 validated = True
-                iou = self._val_epoch(epoch)
-                print(f"Global IoU:{iou}")
+                global_metrics = self._val_epoch(epoch)
+                print(global_metrics)
+                iou = global_metrics["global_iou"]
                 self.improved = iou > self.best_iou
                 if self.improved:
                     self.best_iou = iou
@@ -96,8 +97,9 @@ class BaseTrainer:
                 self._save_checkpoints("best_loss")
 
                 if self.val and not validated:
-                    iou = self._val_epoch(epoch)
-                    print(f"Global IoU:{iou}")
+                    global_metrics = self._val_epoch(epoch)
+                    print(global_metrics)
+                    iou = global_metrics["global_iou"]
                     self.improved = iou > self.best_iou
                     if self.improved:
                         self.best_iou = iou
@@ -107,8 +109,9 @@ class BaseTrainer:
 
             if self.loss_not_improved_count > self.break_for_grad_vanish:
                 if self.val and not validated:
-                    iou = self._val_epoch(epoch)
-                    print(f"Global IoU:{iou}")
+                    global_metrics = self._val_epoch(epoch)
+                    print(global_metrics)
+                    iou = global_metrics["global_iou"]
                     self.improved = iou > self.best_iou
                     if self.improved:
                         self.best_iou = iou
