@@ -1,5 +1,5 @@
 {
-	"model": "UNet",
+	"model": "DinkNet34",
 	"num_classes": 1,
 	"loader_name": "Visiontek_rgb_loader",
 
@@ -7,7 +7,7 @@
     {
 		"name": "visiontek_road_rgb_dinknet_res34",
 
-		"use_gpu": false,
+		"use_gpu": true,
 
 		"cudnnBenchmarkFlag": true,
 
@@ -15,7 +15,7 @@
 
         "epochs": 500,
         "save_dir": "saved/", 
-    	"Message": "add augment",
+    	"Message": "remove crop",
         "save_period": 5, 
         
 		"loss": "CE_BatchDiceLoss",
@@ -44,15 +44,15 @@
 		"data_dir": "./data/road/train",
 		
 		"args": {
-			"batch_size": 1,
+			"batch_size": 4,
 			"shuffle": true,
-			"num_workers": 0,
+			"num_workers": 4,
 			"sampler": null
 		},
 
 		"augment": {
 			"applyAugment": true,
-			"augment_method": ["HorizontalFlip", "VerticalFlip", "Rotation", "Crop", "Scale"],
+			"augment_method": ["HorizontalFlip", "VerticalFlip", "Rotation", "Scale"],
 
 			"args": {
 				"HorizontalFlip": {
@@ -82,9 +82,9 @@
 		"data_dir": "./data/road/val",
 
 		"args":{
-			"batch_size": 1,
+			"batch_size": 4,
 			"shuffle": false,
-			"num_workers": 0
+			"num_workers": 4
 		},
 
 		"augment": {

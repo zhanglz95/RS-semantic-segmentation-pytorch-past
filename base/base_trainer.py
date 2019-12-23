@@ -13,9 +13,10 @@ class BaseTrainer:
         self.model = model
         self.config = configs["trainer"]
         # init iter args
-        self.start_epoch = 1
+        self.start_epoch = 0
         self.epochs = self.config['epochs']
         self.train_loader = train_loader
+        self.total_iters = len(train_loader)
         self.val = self.config['val']
         self.val_loader = val_loader
         self.val_per_epochs = self.config['val_per_epochs']
