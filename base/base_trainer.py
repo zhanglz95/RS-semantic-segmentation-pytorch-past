@@ -117,7 +117,7 @@ class BaseTrainer:
                         self.best_iou = iou
                         self._save_checkpoints("best_iou")
 
-                with open(self.checkpoints_path / "message.txt", "w") as handle:
+                with open(self.checkpoints_path / "message.txt", "w+") as handle:
                     handle.write("break for train loss best.\n")
                     handle.write(f"break in epoch {epoch}.\n")
                     handle.write(f"best_iou: {self.best_iou}\n")
