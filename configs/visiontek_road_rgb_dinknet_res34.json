@@ -7,7 +7,7 @@
     {
 		"name": "visiontek_road_rgb_dinknet_res34",
 
-		"use_gpu": true,
+		"use_gpu": false,
 
 		"cudnnBenchmarkFlag": true,
 
@@ -45,9 +45,9 @@
 		"data_dir": "./data/road/train",
 		
 		"args": {
-			"batch_size": 4,
+			"batch_size": 1,
 			"shuffle": true,
-			"num_workers": 4,
+			"num_workers": 1,
 			"sampler": null
 		},
 
