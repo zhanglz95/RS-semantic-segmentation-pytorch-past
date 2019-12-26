@@ -6,12 +6,13 @@ from utils.metrics import Metrics
 from utils.transfunction import tensor2mask, label2rgb, tensor2numpy
 import time
 class Trainer(BaseTrainer):
-	def __init__(self, config, model, train_loader, val_loader):
+	def __init__(self, config, model, train_loader, val_loader=None):
 		super(Trainer, self).__init__(config, model, train_loader, val_loader)
 
 		if self.device != torch.device('cpu'):
 			self.train_loader = DataPrefetcher(train_loader, device=self.device)
-			self.val_loader = DataPrefetcher(val_loader, device=self.device)
+			if self.val:
+				self.val_loader = DataPrefetcher(val_loader, device=self.device)
 
 	def _train_epoch(self, epoch):
 		self.model.train()

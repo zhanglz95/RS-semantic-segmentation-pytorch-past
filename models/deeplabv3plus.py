@@ -17,8 +17,8 @@ class Bottleneck_conv_x3(nn.Module):
 		self.conv2 = nn.Conv2d(planes, planes, kernel_size=3, stride=stride,
 							   dilation=dilation, padding=dilation, bias=False)
 		self.bn2 = BatchNorm(planes)
-		self.conv3 = nn.Conv2d(planes, planes * expansion, kernel_size=1, bias=False)
-		self.bn3 = BatchNorm(planes * expansion)
+		self.conv3 = nn.Conv2d(planes, planes * self.expansion, kernel_size=1, bias=False)
+		self.bn3 = BatchNorm(planes * self.expansion)
 		self.relu = nn.ReLU(inplace=True)
 		self.downsample = downsample
 		self.stride = stride

@@ -14,7 +14,9 @@ def train(config_path):
 	configs = json.load(open(config_path))
 	# initial train and valid loader
 	train_loader = getattr(D, configs["loader_name"])(configs["train_loader"])
-	val_loader = getattr(D, configs["loader_name"])(configs["val_loader"])
+	if configs["trainer"]["val"]:
+		val_loader = getattr(D, configs["loader_name"])(configs["val_loader"])
+	else:val_loader = None
 	# initial model
 	num_classes = configs["num_classes"]
 	model = getattr(M, configs["model"])(num_classes = num_classes)
