@@ -1,0 +1,102 @@
+{
+	"model": "DeepLab",
+	"num_classes": 1,
+	"loader_name": "Visiontek_rgb_loader",
+
+	"trainer":
+    {
+		"name": "visiontek_road_rgb_deeplab_res101",
+
+		"use_gpu": true,
+
+		"cudnnBenchmarkFlag": true,
+
+		"resume_path": null,
+
+        "epochs": 500,
+        "save_dir": "saved/", 
+    	"Message": "remove crop",
+        
+		"loss": "CE_BatchDiceLoss",
+		"optimizer": {
+			"type": "Adam",
+			"lr": 1e-3
+		},
+
+		"batch_metrics": ["batch_iou", "batch_recall", "batch_precision"],
+		"global_metrics": ["global_iou", "global_recall", "global_precision"],
+
+        "val": true,
+
+        "val_per_epochs": 2,
+        "break_for_grad_vanish": 3,
+        "save_per_epochs": 2,
+        "val_per_epochs": 5,
+        "break_for_grad_vanish": 5,
+        "save_per_epochs": 5,
+        "lr_descend": 2,
+        "log_per_iter": 10,
+
+        "tensorboard": true,
+        "log_dir": "saved/runs" 
+    },
+
+	"train_loader": {
+		"data_dir": "./data/road/train",
+		
+		"args": {
+			"batch_size": 2,
+			"shuffle": true,
+			"num_workers": 2,
+			"sampler": null
+		},
+
+		"augment": {
+			"applyAugment": true,
+			"augment_method": ["HorizontalFlip", "VerticalFlip", "Rotation", "Scale"],
+
+			"args": {
+				"HorizontalFlip": {
+					"probability": 0.5
+				},
+				"VerticalFlip": {
+					"probability": 0.5
+				},
+				"Translation": {
+					"probability": 0.5,
+					"factor": 0.2
+				},
+				"Rotation": {
+					"probability": 0.5
+				},
+				"Crop": {
+					"probability": 0.5
+				},
+				"Scale": {
+					"size": [1024, 1024]
+				}
+			}
+		}
+	},
+	
+	"val_loader": {
+		"data_dir": "./data/road/val",
+
+		"args":{
+			"batch_size": 2,
+			"shuffle": false,
+			"num_workers": 2
+		},
+
+		"augment": {
+			"applyAugment": true,
+			"augment_method": ["Scale"],
+
+			"args": {
+				"Scale": {
+					"size": [1024, 1024]
+				}
+			}
+		}
+	}
+}

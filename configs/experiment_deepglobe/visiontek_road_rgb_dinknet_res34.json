@@ -1,0 +1,78 @@
+{
+	"model": "DinkNet34",
+	"num_classes": 1,
+	"loader_name": "Deepglobe_rgb_loader",
+
+	"trainer":
+    {
+		"name": "deepglobe_road_rgb_dinknet_res34",
+
+		"use_gpu": true,
+
+		"cudnnBenchmarkFlag": true,
+
+		"resume_path": null,
+
+        "epochs": 500,
+        "save_dir": "saved/", 
+    	"Message": "base benchmark",
+        
+		"loss": "CE_BatchDiceLoss",
+		"optimizer": {
+			"type": "Adam",
+			"lr": 1e-4
+		},
+
+		"batch_metrics": ["batch_iou", "batch_recall", "batch_precision"],
+		"global_metrics": ["global_iou", "global_recall", "global_precision"],
+
+        "val": false,
+
+        "break_for_grad_vanish": 3,
+        "val_per_epochs": 5,
+        "save_per_epochs": 5,
+        "lr_descend": 2,
+        "log_per_iter": 10,
+
+        "tensorboard": true,
+        "log_dir": "saved/runs" 
+    },
+
+	"train_loader": {
+		"data_dir": "./data/deepglobe/road/train",
+		
+		"args": {
+			"batch_size": 4,
+			"shuffle": true,
+			"num_workers": 4,
+			"sampler": null
+		},
+
+		"augment": {
+			"applyAugment": true,
+			"augment_method": ["HorizontalFlip", "VerticalFlip", "Rotation", "Scale"],
+
+			"args": {
+				"HorizontalFlip": {
+					"probability": 0.5
+				},
+				"VerticalFlip": {
+					"probability": 0.5
+				},
+				"Translation": {
+					"probability": 0.5,
+					"factor": 0.2
+				},
+				"Rotation": {
+					"probability": 0.5
+				},
+				"Crop": {
+					"probability": 0.5
+				},
+				"Scale": {
+					"size": [1024, 1024]
+				}
+			}
+		}
+	}
+}

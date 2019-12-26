@@ -8,17 +8,17 @@ from models.sync_batchnorm.batchnorm import SynchronizedBatchNorm2d
 DeeplabV3+ refer to https://github.com/jfzhang95/pytorch-deeplab-xception
 '''
 # Resnet BackBone
-class Bottleneck(nn.Module):
+class Bottleneck_conv_x3(nn.Module):
 	expansion = 4
 	def __init__(self, inplanes, planes, stride=1, dilation=1, downsample=None, BatchNorm=None):
-		super(Bottleneck, self).__init__()
+		super(Bottleneck_conv_x3, self).__init__()
 		self.conv1 = nn.Conv2d(inplanes, planes, kernel_size=1, bias=False)
 		self.bn1 = BatchNorm(planes)
 		self.conv2 = nn.Conv2d(planes, planes, kernel_size=3, stride=stride,
 							   dilation=dilation, padding=dilation, bias=False)
 		self.bn2 = BatchNorm(planes)
-		self.conv3 = nn.Conv2d(planes, planes * 4, kernel_size=1, bias=False)
-		self.bn3 = BatchNorm(planes * 4)
+		self.conv3 = nn.Conv2d(planes, planes * expansion, kernel_size=1, bias=False)
+		self.bn3 = BatchNorm(planes * expansion)
 		self.relu = nn.ReLU(inplace=True)
 		self.downsample = downsample
 		self.stride = stride
@@ -45,6 +45,8 @@ class Bottleneck(nn.Module):
 		out = self.relu(out)
 
 		return out
+
+
 
 class ResNet(nn.Module):
 
@@ -150,7 +152,11 @@ class ResNet(nn.Module):
 		self.load_state_dict(state_dict)
 
 def ResNet101(output_stride, BatchNorm, pretrained=True):
-	model = ResNet(Bottleneck, [3, 4, 23, 3], output_stride, BatchNorm, pretrained=pretrained)
+	model = ResNet(Bottleneck_conv_x3, [3, 4, 23, 3], output_stride, BatchNorm, pretrained=pretrained)
+	return model
+
+def ResNet50(output_stride, BatchNorm, pretrained=True):
+	model = ResNet(Bottleneck_conv_x3, [3, 4, 6, 3], output_stride, BatchNorm, pretrained=pretrained)
 	return model
 
 # aspp
@@ -281,14 +287,17 @@ class Decoder(nn.Module):
 # deeplab
 class DeepLab(nn.Module):
 
-	def __init__(self, backbone='resnet', output_stride=16, num_classes=1, sync_bn=True, freeze_bn=False):
+	def __init__(self, backbone='resnet101', output_stride=16, num_classes=1, sync_bn=True, freeze_bn=False):
 		super(DeepLab, self).__init__()
 		if sync_bn == True:
 			BatchNorm = SynchronizedBatchNorm2d
 		else:
 			BatchNorm = nn.BatchNorm2d
 
-		self.backbone = ResNet101(output_stride, BatchNorm)
+		if backbone == "resnet50":
+			self.backbone = ResNet50(output_stride, BatchNorm)
+		else:
+			self.backbone = ResNet101(output_stride, BatchNorm)
 		self.aspp = ASPP(output_stride, BatchNorm)
 		self.decoder = Decoder(num_classes, BatchNorm)
 
