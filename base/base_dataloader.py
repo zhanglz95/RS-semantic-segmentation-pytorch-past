@@ -21,7 +21,7 @@ class BaseDataLoader(DataLoader):
             'batch_sampler':None, 
             'num_workers':num_workers, 
             'collate_fn':None,
-            'pin_memory':False,
+            'pin_memory':True,
             'drop_last':False,
             'timeout':0,
             'worker_init_fn':None

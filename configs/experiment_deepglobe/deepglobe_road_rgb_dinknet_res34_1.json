@@ -42,9 +42,9 @@
 		"data_dir": "./data/deepglobe/road/train",
 		
 		"args": {
-			"batch_size": 2,
+			"batch_size": 6,
 			"shuffle": true,
-			"num_workers": 2,
+			"num_workers": 6,
 			"sampler": null
 		},
 

@@ -1,7 +1,9 @@
 aug_test/
 data/
 saved/
+configs/
 *.pth
 __pycache__
 *.jpg
 *.png
+demo/

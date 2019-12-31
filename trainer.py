@@ -29,7 +29,6 @@ class Trainer(BaseTrainer):
 			# Metrics
 			metrics.update_input(outputs, masks)
 			seg_metrics = metrics.get_metrics(self.config["batch_metrics"])
-
 			self.optimizer.zero_grad()
 			loss = self.loss(outputs, masks)
 			loss.backward()
