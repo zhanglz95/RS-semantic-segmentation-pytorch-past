@@ -10,12 +10,14 @@ if __name__ == "__main__":
 	model = getattr(M, "DinkNet34")()
 	device = torch.device("cuda:0")
 
-	dictPath = Path("./saved/deepglobe_road_rgb_dinknet_res34/12-27-19:13/DinkNet34-best_loss.pth")
+	dictPath = Path("./saved/visiontek_road_rgb_dinknet_res34/12-25-08:07/DinkNet34-best_iou.pth")
 	model.load_state_dict(torch.load(dictPath))
 	model.to(device)
 
-	srcDir = Path("./data/deepglobe/road/valid/images")
-	dstDir = Path("./demo/deepglobe_valid_base_dice_div_4_tta_vote")
+	# srcDir = Path("./data/deepglobe/road/valid/images")
+	# dstDir = Path("./demo/deepglobe_valid_base_dice_div_4_tta_vote")
+	srcDir = Path("./data/road/val/images")
+	dstDir = Path("./demo/visiontek_val_lr-4")
 	if not dstDir.exists():
 		dstDir.mkdir()
 	imgList = srcDir.glob("*.jpg")
@@ -111,7 +113,8 @@ if __name__ == "__main__":
 		output = np.array(fg, dtype=np.uint8) * 255
 
 		output = Image.fromarray(output)
-		output.save(dstDir / imgpath.name.replace("_sat.jpg", "_mask.png"))
+		output.save(dstDir / imgpath.name.replace(".jpg", ".png"))
+		# output.save(dstDir / imgpath.name.replace("_sat.jpg", "_mask.png"))
 
 
 

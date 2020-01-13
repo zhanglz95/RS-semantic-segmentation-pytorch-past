@@ -113,8 +113,6 @@ class MultiClassBatchDiceLoss(nn.Module):
 
 
 		loss = 1 - 2 * (intersection.sum()) / (output_flat.sum() + one_hot_target_flat.sum() + smooth)
-		# for test
-		loss /= N
 
 		return loss
 
