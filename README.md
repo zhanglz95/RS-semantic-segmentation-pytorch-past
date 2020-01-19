@@ -25,9 +25,9 @@ This repo aims at implementing multiple semantic segmentation models on Pytorch(
 ```
 
 ## Todo
-- [ ] Deeplab v3+
+- [X] Deeplab v3+
 - [X] Unet
-- [ ] Linknet
+- [X] Linknet
 - [X] Dinknet
 - [ ] RGBI images
 
