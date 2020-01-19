@@ -8,7 +8,8 @@
 ## Introduction
 This repo aims at implementing multiple semantic segmentation models on Pytorch(1.3) for RemoteSensing image datasets.
 
-## Installation
+## Preparation
+The code was tested with Anaconda and Python 3.7. And you will do the follow to be ready for running the code:
 ```
 # RS-semantic-segmentation-pytorch dependencies, torch and torchvision are installed by pip.
 pip install -r requirements.txt
@@ -20,21 +21,13 @@ pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 git clone https://github.com/zhanglz95/RS-semantic-segmentation-pytorch.git
 ```
 
-## Usage
-### Train
-```
-**Coming Soon.**
-```
-### Evaluation
-```
-**Coming Soon.**
-```
-
 ## Todo
 - [X] Deeplab v3+
 - [X] Unet
 - [X] Linknet
 - [X] Dinknet
+- [X] CENet
+- [X] R2UNet
 - [ ] RGBI images
 
 ## Code structure
@@ -45,8 +38,20 @@ The code structure is based on [pytorch-template](https://github.com/victoresque
   ├── train.py - main script to start training
   ├── test.py - test using a trained model
   ├── trainer.py - script for training  
+  ├── inference.py - script for inference
+  ├── requirements.txt - dependencies for the code  
+  ├── data/
+  │   └── xxxDatasets/
+  │       ├── train/
+  │       │   ├── image/ - folder contains image files.
+  │       │   └── masks/ - folder contains mask files.
+  │       └── valid/
+  │           ├── image/ - folder contains image files.
+  │           └── masks/ - folder contains mask files.  
+  │
   ├── configs/
-  │   ├── xxx.json
+  │   ├── xxx/ - folder contains multiple json files for batch running
+  │   ├── xxx.json - json file for single running.
   │   ├── xxx.json
   │   └── xxx.json    
   │
@@ -77,8 +82,20 @@ The code structure is based on [pytorch-template](https://github.com/victoresque
       ├── loss.py - losses used in training the model
       ├── metrics.py - evaluation metrics used
       ├── optim.py - load torch.optim
+      ├── transfunction.py - utils for inference.py
       └── augmentation.py - augmentation utils
   ```
+
+
+## Usage
+### Train
+```
+**Coming Soon.**
+```
+### Evaluation
+```
+**Coming Soon.**
+```
 
 ## Acknowledgement
 [pytorch-deeplab-xception](https://github.com/jfzhang95/pytorch-deeplab-xception)
