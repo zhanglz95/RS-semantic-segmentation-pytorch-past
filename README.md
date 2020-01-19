@@ -6,7 +6,7 @@
 
 
 ## Introduction
-This repo aims at implementing multiple semantic segmentation models on Pytorch(1.3) for RS(RemoteSensing) image datasets.
+This repo aims at implementing multiple semantic segmentation models on Pytorch(*1.3*) for RS(*RemoteSensing*) image datasets.
 
 ## Repo Collaborator
 **[zhanglz95](https://github.com/zhanglz95)**   
