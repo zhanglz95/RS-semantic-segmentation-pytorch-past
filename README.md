@@ -43,15 +43,15 @@ The code structure is based on [pytorch-template](https://github.com/victoresque
   ├── data/
   │   └── xxxDatasets/
   │       ├── train/
-  │       │   ├── image/ - folder contains image files.
-  │       │   └── masks/ - folder contains mask files.
+  │       │   ├── image/ - folder contains image files
+  │       │   └── masks/ - folder contains mask files
   │       └── valid/
-  │           ├── image/ - folder contains image files.
-  │           └── masks/ - folder contains mask files.  
+  │           ├── image/ - folder contains image files
+  │           └── masks/ - folder contains mask files  
   │
   ├── configs/
   │   ├── xxx/ - folder contains multiple json files for batch running
-  │   ├── xxx.json - json file for single running.
+  │   ├── xxx.json - json file for single running
   │   ├── xxx.json
   │   └── xxx.json    
   │
@@ -75,7 +75,7 @@ The code structure is based on [pytorch-template](https://github.com/victoresque
   │
   ├── saved/
   │   └── training_name/ - training name for different training config
-  │       └── Time/ - Different time when start training
+  │       └── month-date-hour-minute/ - Timestamp when start training
   │  
   └── utils/ - small utility functions
       ├── __init__.py
@@ -89,12 +89,18 @@ The code structure is based on [pytorch-template](https://github.com/victoresque
 
 ## Usage
 ### Train
+First, you should put your datasets file into the "data" folder as requested. Then you can set up your training parameters by create a json file according to the json file format in "./configs" folder. If you want to add a model for training, you can simply add the model file to "./models" folder and modify the correspond configs. Everything being ready, then you can simply run:
 ```
-**Coming Soon.**
+python train.py -c "./configs/xxx.json"
 ```
-### Evaluation
+Or if you want run with multiple configs for experiments, you can put multiple json files in the sub-folder of "./configs" and then run:
 ```
-**Coming Soon.**
+python train.py -c_dir "./configs/configs_folder/"
+```
+### Inference
+We implement a simple inference code for the visualization of the results. Test time augmentation is used to promote metrics scores. For now, you can only modify the code for your own inference, it will be improved and perfected soon...
+```
+python inference.py
 ```
 
 ## Acknowledgement
