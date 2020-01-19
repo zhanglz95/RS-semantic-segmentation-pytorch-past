@@ -12,10 +12,11 @@ This repo aims at implementing multiple semantic segmentation models on Pytorch(
 ```
 # RS-semantic-segmentation-pytorch dependencies, torch and torchvision are installed by pip.
 pip install -r requirements.txt
-# or for the mainland of China
+
+# or if you are in the mainland of China.
 pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 
-# clone the Repo
+# Then clone the Repo
 git clone https://github.com/zhanglz95/RS-semantic-segmentation-pytorch.git
 ```
 
