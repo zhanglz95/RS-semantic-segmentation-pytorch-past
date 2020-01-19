@@ -10,8 +10,11 @@ This repo aims at implementing multiple semantic segmentation models on Pytorch(
 
 ## Repo Collaborator
 zhanglz95[github](https://github.com/zhanglz95)
+
 dljjqy[github](https://github.com/dljjqy)
+
 湖北工业停水停电大学[github](https://github.com/864546664)
+
 Jaychan-Tang[github](https://github.com/Jaychan-Tang)
 
 ## Preparation
