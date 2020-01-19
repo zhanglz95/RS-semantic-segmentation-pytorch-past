@@ -8,6 +8,12 @@
 ## Introduction
 This repo aims at implementing multiple semantic segmentation models on Pytorch(1.3) for RemoteSensing image datasets.
 
+## Repo Collaborator
+zhanglz95[github](https://github.com/zhanglz95)
+dljjqy[github](https://github.com/dljjqy)
+湖北工业停水停电大学[github](https://github.com/864546664)
+Jaychan-Tang[github](https://github.com/Jaychan-Tang)
+
 ## Preparation
 The code was tested with Anaconda and Python 3.7. And you will do the follow to be ready for running the code:
 ```
