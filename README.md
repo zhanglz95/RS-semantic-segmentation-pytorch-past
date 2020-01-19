@@ -6,7 +6,7 @@
 
 
 ## Introduction
-This repo aims at implementing multiple semantic segmentation models on Pytorch(1.3) for RemoteSensing image datasets.
+This repo aims at implementing multiple semantic segmentation models on Pytorch(1.3) for RS(RemoteSensing) image datasets.
 
 ## Repo Collaborator
 **[zhanglz95](https://github.com/zhanglz95)**   
@@ -28,13 +28,12 @@ git clone https://github.com/zhanglz95/RS-semantic-segmentation-pytorch.git
 ```
 
 ## Todo
-- [X] Deeplab v3+
-- [X] Unet
-- [X] Linknet
-- [X] Dinknet
-- [X] CENet
-- [X] R2UNet
-- [ ] RGBI images
+- [X] Deeplab v3+ - Encoder-Decoder with Atrous Separable Convolution for Semantic Image Segmentation. [[Paper]](https://arxiv.org/abs/1802.02611)
+- [X] U-net - Convolutional Networks for Biomedical Image Segmentation (2015). [[Paper]](https://arxiv.org/abs/1505.04597)
+- [X] Linknet - LinkNet: Exploiting Encoder Representations for Efficient Semantic Segmentation. [[Paper]](https://arxiv.org/abs/1707.03718)
+- [X] Dinknet - D-LinkNet: LinkNet With Pretrained Encoder and Dilated Convolution for High Resolution Satellite Imagery Road Extraction. [[Paper]](http://openaccess.thecvf.com/content_cvpr_2018_workshops/w4/html/Zhou_D-LinkNet_LinkNet_With_CVPR_2018_paper.html)[[Code]](https://github.com/zlkanata/DeepGlobe-Road-Extraction-Challenge)
+- [X] CENet - CE-Net: Context Encoder Network for 2D Medical Image Segmentation. [[Paper]](https://arxiv.org/abs/1903.02740)
+- [ ] RGBI(Infrared) images training
 
 ## Code structure
 The code structure is based on [pytorch-template](https://github.com/victoresque/pytorch-template/blob/master/README.md)
